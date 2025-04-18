@@ -8,17 +8,20 @@ using namespace KamataEngine;
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
+	// エンジンの初期化
+	Initialize(L"LE2A_13_ホリケ_ハヤト_AL3_kakuninn_01_01");
+
 	// ゲームシーンのインスタンスを生成
 	GameScene* gameScene = new GameScene();
 
 	// DirectXCommonのインスタンスの取得
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
+	// ImGuiManagerのインスタンスの取得
+	ImGuiManager* imguiManager = ImGuiManager::GetInstance();
+
 	// ゲームシーンの初期化
 	gameScene->Initialize();
-
-	// エンジンの初期化
-	Initialize(L"LE2A_13_ホリケ_ハヤト_AL3_kakuninn_01_01");
 
 	// メインループ
 	while (true) {
@@ -27,14 +30,26 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			break;
 		}
 
+		// ImGuiの受付開始
+		imguiManager->Begin();
+
 		// ゲームシーンの更新
 		gameScene->Update();
+
+		// ImGuiの受付終了
+		imguiManager->End();
 
 		// 描画開始
 		dxCommon->PreDraw();
 
 		// ゲームシーンの描画
 		gameScene->Draw();
+
+		// 軸表示の描画
+		AxisIndicator::GetInstance()->Draw();
+
+		// ImGuiの描画
+		imguiManager->Draw();
 
 		// 描画終了
 		dxCommon->PostDraw();

@@ -8,17 +8,17 @@ using namespace KamataEngine;
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
-	// ゲームシーンのインスタンスを生成
-	GameScene* gameScene = new GameScene();
+	// エンジンの初期化
+	Initialize(L"LE2A_13_ホリケ_ハヤト_AL3_kakuninn_01_01");
 
 	// DirectXCommonのインスタンスの取得
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
+	// ゲームシーンのインスタンスを生成
+	GameScene* gameScene = new GameScene();
+
 	// ゲームシーンの初期化
 	gameScene->Initialize();
-
-	// エンジンの初期化
-	Initialize(L"LE2A_13_ホリケ_ハヤト_AL3_kakuninn_01_01");
 
 	// メインループ
 	while (true) {

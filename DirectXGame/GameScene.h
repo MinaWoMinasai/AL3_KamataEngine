@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include "Player.h"
 #include <vector>
+#include "Skydome.h"
 
 // ゲームシーン
 class GameScene {
@@ -39,11 +40,14 @@ private:
 
 	// 3Dモデル
 	KamataEngine::Model* model_ = nullptr;
+	KamataEngine::Model* modelSkydome_ = nullptr;
 
 	// カメラ
 	KamataEngine::Camera camera_;
 
 	Player* player_ = nullptr;
+
+	Skydome* skydome_ = nullptr; 
 
 	// ブロックの3Dモデル
 	KamataEngine::Model* modelBlock_ = nullptr;

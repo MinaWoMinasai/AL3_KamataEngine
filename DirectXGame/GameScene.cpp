@@ -9,6 +9,7 @@ GameScene::GameScene() {}
 
 GameScene::~GameScene() {
 	delete model_;
+	delete modelSkydome_;
 	delete player_;
 	delete modelBlock_;
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
@@ -23,21 +24,30 @@ GameScene::~GameScene() {
 void GameScene::Initialize() {
 
 	// ファイル名を指定してテクスチャを読み込む
-	textureHandle_ = TextureManager::Load("sample.png");
+	textureHandle_ = TextureManager::Load("Player.png");
 
 	// 3Dモデルの生成
-	model_ = Model::Create();
+	model_ = Model::CreateFromOBJ("Player", true);
+
+	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
 
 	// ブロックの3Dモデルの生成
-	modelBlock_ = Model::Create();
+	modelBlock_ = Model::CreateFromOBJ("block", true);
 
 	// カメラの初期化
+	camera_.farZ = 100;
 	camera_.Initialize();
 
 	// 自キャラの生成
 	player_ = new Player();
 	// 自キャラの初期化
 	player_->Initialize(model_, textureHandle_, &camera_);
+
+	// 天球の生成
+	skydome_ = new Skydome();
+	// 天球の初期化
+	skydome_->Initialize(modelSkydome_, &camera_);
+
 
 	// 要素数
 	const uint32_t kNumBlockVertical = 10;
@@ -84,18 +94,20 @@ void GameScene::Initialize() {
 // 更新
 void GameScene::Update() {
 
+	player_->Update();
+
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
 
 			if (!worldTransformBlock)
 				continue;
 
-			KamataEngine::Matrix4x4 scaleMatrix = MakeScaleMatrix(worldTransformBlock->scale_);
-			KamataEngine::Matrix4x4 translateMatrix = MakeTranslateMatrix(worldTransformBlock->translation_);
-			KamataEngine::Matrix4x4 rotateXMatrix = MakeRotateXMatrix(worldTransformBlock->rotation_.x);
-			KamataEngine::Matrix4x4 rotateYMatrix = MakeRotateYMatrix(worldTransformBlock->rotation_.y);
-			KamataEngine::Matrix4x4 rotateZMatrix = MakeRotateZMatrix(worldTransformBlock->rotation_.z);
-			KamataEngine::Matrix4x4 affineMatrix = scaleMatrix * rotateXMatrix * rotateYMatrix * rotateZMatrix * translateMatrix;
+			Matrix4x4 scaleMatrix = MakeScaleMatrix(worldTransformBlock->scale_);
+			Matrix4x4 translateMatrix = MakeTranslateMatrix(worldTransformBlock->translation_);
+			Matrix4x4 rotateXMatrix = MakeRotateXMatrix(worldTransformBlock->rotation_.x);
+			Matrix4x4 rotateYMatrix = MakeRotateYMatrix(worldTransformBlock->rotation_.y);
+			Matrix4x4 rotateZMatrix = MakeRotateZMatrix(worldTransformBlock->rotation_.z);
+			Matrix4x4 affineMatrix = scaleMatrix * rotateXMatrix * rotateYMatrix * rotateZMatrix * translateMatrix;
 
 			worldTransformBlock->matWorld_ = affineMatrix;
 
@@ -128,6 +140,12 @@ void GameScene::Update() {
 // 描画
 void GameScene::Draw() {
 
+	// プレイヤーの描画
+	player_->Draw();
+
+	// 天球の描画
+	skydome_->Draw();
+
 	// DirectXCommonのインスタンスの取得
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
@@ -139,7 +157,7 @@ void GameScene::Draw() {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
 			if (!worldTransformBlock)
 				continue;
-
+	
 			modelBlock_->Draw(*worldTransformBlock, camera_);
 			modelBlock_->Draw(*worldTransformBlock, debugCamera_->GetCamera());
 		}
@@ -147,4 +165,5 @@ void GameScene::Draw() {
 
 	// 3Dモデル描画後処理
 	Model::PostDraw();
+
 }

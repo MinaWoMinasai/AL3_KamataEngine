@@ -4,6 +4,7 @@
 #include "Player.h"
 #include <vector>
 #include "Skydome.h"
+#include "MapChipField.h"
 
 // ゲームシーン
 class GameScene {
@@ -18,6 +19,11 @@ public:
 	/// デストラクタ
 	/// </summary>
 	~GameScene();
+
+	/// <summary>
+	/// 
+	/// </summary>
+	void GeneratteBlocks();
 
 	/// <summary>
 	/// 初期化
@@ -61,5 +67,7 @@ private:
 	// デバッグカメラ
 	KamataEngine::DebugCamera* debugCamera_ = nullptr;
 
+	// マップチップフィールド
+	MapChipField* mapChipField_;
 
 };

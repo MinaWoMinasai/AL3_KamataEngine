@@ -31,6 +31,9 @@ public:
 	/// </summary>
 	void Draw();
 
+	// ワールドトランスフォームを取得
+	KamataEngine::WorldTransform& GetWorldTransform() { return worldTransform_; }
+
 private:
 
 	enum class LRDirection {
@@ -60,7 +63,7 @@ private:
 	// 旋回タイマー
 	float turnTimer_ = 0.0f;
 	// 旋回時間<秒>
-	static inline const float kTimeTurn = 0.3f;
+	static inline const float kTimeTurn = 1.0f;
 	// 最大速度
 	static inline const float kLimitRunSpeed = 0.5f;
 	// 接地状態フラグ

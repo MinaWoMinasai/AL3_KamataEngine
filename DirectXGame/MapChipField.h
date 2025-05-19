@@ -42,5 +42,6 @@ class MapChipField {
 	static inline const uint32_t kNumBlockHorizontal = 100;
 
 	MapChipData mapChipData_;
+	
 
 };

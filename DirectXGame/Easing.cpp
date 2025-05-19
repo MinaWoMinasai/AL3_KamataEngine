@@ -1,4 +1,6 @@
 #include "Easing.h"
+using namespace KamataEngine;
+using namespace MathUtility;
 
 #pragma region イージングの種類
 
@@ -183,4 +185,13 @@ float easeInOutBounce(float t) {
 		return (1.0f + easeOutBounce(2.0f * t - 1.0f)) / 2.0f;
 	}
 }
+
+KamataEngine::Vector3 Lerp(const KamataEngine::Vector3& start, const KamataEngine::Vector3& end, float t) {
+
+	// 線形補間
+	KamataEngine::Vector3 result = start + (end - start) * t;
+	// 補間結果を返す
+	return result;
+}
+
 #pragma endregion

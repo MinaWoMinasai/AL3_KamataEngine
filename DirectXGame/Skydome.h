@@ -2,6 +2,7 @@
 #include "KamataEngine.h"
 #include <Windows.h>
 #include <vector>
+#include "WorldTransformClass.h"
 
 /// <summary>
 /// 天球

@@ -20,6 +20,7 @@ GameScene::~GameScene() {
 	worldTransformBlocks_.clear();
 	delete debugCamera_;
 	delete mapChipField_;
+	delete cameraContoroller_;
 }
 
 void GameScene::GeneratteBlocks() {
@@ -88,12 +89,22 @@ void GameScene::Initialize() {
 	// デバッグカメラの初期化
 	debugCamera_ = new DebugCamera(1280, 720);
 
+	// カメラコントローラの初期化
+	cameraContoroller_ = new CameraContoroller();
+	cameraContoroller_->Initialize(&camera_);
+	cameraContoroller_->SetTarget(player_);
+	cameraContoroller_->Reset();
+	cameraContoroller_->SetMovebleArea({22, 100, 12, 100});
 }
 
 // 更新
 void GameScene::Update() {
 
 	player_->Update();
+
+	cameraContoroller_->Update();
+
+	skydome_->Update();
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -126,6 +137,7 @@ void GameScene::Update() {
 	} else {
 		// ビュープロジェクション行列の更新と転送
 		camera_.UpdateMatrix();
+		camera_.TransferMatrix();
 	}
 
 #ifdef _DEBUG
@@ -158,7 +170,7 @@ void GameScene::Draw() {
 				continue;
 	
 			modelBlock_->Draw(*worldTransformBlock, camera_);
-			modelBlock_->Draw(*worldTransformBlock, debugCamera_->GetCamera());
+			//modelBlock_->Draw(*worldTransformBlock, debugCamera_->GetCamera());
 		}
 	}
 

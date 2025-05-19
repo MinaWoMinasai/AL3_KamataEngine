@@ -42,8 +42,8 @@ void Player::Update() {
 				acceleration.x += kAcceleration;
 				if (lrDirection_ != LRDirection::kRight) {
 					lrDirection_ = LRDirection::kRight;
-					turnFirstRotationY_ = std::numbers::pi_v<float> * 2.0f;
-					turnTimer_ = 30.0f;
+					turnFirstRotationY_ = worldTransform_.rotation_.y;
+					turnTimer_ = kTimeTurn;
 				}
 			} else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
 
@@ -54,8 +54,8 @@ void Player::Update() {
 				acceleration.x -= kAcceleration;
 				if (lrDirection_ != LRDirection::kLeft) {
 					lrDirection_ = LRDirection::kLeft;
-					turnFirstRotationY_ = std::numbers::pi_v<float>;
-					turnTimer_ = 30.0f;
+					turnFirstRotationY_ = worldTransform_.rotation_.y;
+					turnTimer_ = kTimeTurn;
 				}
 			}
 			// 加速/減速
@@ -120,7 +120,7 @@ void Player::Update() {
 	if (turnTimer_ > 0.0f) {
 
 		// 旋回タイマーをカウントダウンする
-		turnTimer_--;
+		turnTimer_ -= 1.0f / 60.0f;
 
 		// 旋回制御
 		// 左右の自キャラ角度テーブル
@@ -128,10 +128,8 @@ void Player::Update() {
 		// 状況にあった角度を取得する
 		float destinationRotationY = destinationRotationYTable[static_cast<uint32_t>(lrDirection_)];
 
-		const float turnDuration_ = 60.0f; // 旋回にかけるフレーム数（例: 60フレームで1秒）
-
 		// 正規化された時間（0.0～1.0）を計算
-		float t = 1.0f - (turnTimer_ / turnDuration_);
+		float t = 1.0f - (turnTimer_ / kTimeTurn);
 
 		// イージング補間値を取得
 		float easedT = easeInOutCubic(t);

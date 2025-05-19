@@ -19,7 +19,7 @@ void Skydome::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camer
 
 }
 
-void Skydome::Update() {}
+void Skydome::Update() { WorldTrnasformUpdate(worldTransform_); }
 
 void Skydome::Draw() {
 

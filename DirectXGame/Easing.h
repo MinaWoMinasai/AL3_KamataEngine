@@ -1,6 +1,7 @@
 #pragma once
 #define M_PI 3.141592653589793
 #include <math.h>
+#include "KamataEngine.h"
 
 #pragma region イージングの種類
 	float easeInSine(float t);
@@ -33,4 +34,6 @@
 	float easeInBounce(float t);
 	float easeOutBounce(float t);
 	float easeInOutBounce(float t);
+
+	KamataEngine::Vector3 Lerp(const KamataEngine::Vector3& start, const KamataEngine::Vector3& end, float t);
 #pragma endregion

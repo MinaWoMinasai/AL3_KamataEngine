@@ -4,7 +4,6 @@ using namespace MathUtility;
 
 void Skydome::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera) {
 
-	
 	// NULLポインタチェック
 	assert(model);
 

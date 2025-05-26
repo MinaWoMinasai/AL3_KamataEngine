@@ -53,7 +53,7 @@ void GameScene::GeneratteBlocks() {
 void GameScene::Initialize() {
 
 	// ファイル名を指定してテクスチャを読み込む
-	textureHandle_ = TextureManager::Load("Player.png");
+	//textureHandle_ = TextureManager::Load("Player.png");
 
 	// 3Dモデルの生成
 	model_ = Model::CreateFromOBJ("Player", true);
@@ -64,8 +64,13 @@ void GameScene::Initialize() {
 	modelBlock_ = Model::CreateFromOBJ("block", true);
 
 	// カメラの初期化
-	camera_.farZ = 100;
+	camera_.farZ = 1000.0f;
 	camera_.Initialize();
+
+	mapChipField_ = new MapChipField;
+	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
+
+	GeneratteBlocks();
 
 	// 自キャラの生成
 	player_ = new Player();
@@ -76,15 +81,12 @@ void GameScene::Initialize() {
 	// 自キャラの初期化
 	player_->Initialize(model_, textureHandle_, &camera_, playerPosition);
 
+	player_->SetMapChipField(mapChipField_);
+
 	// 天球の生成
 	skydome_ = new Skydome();
 	// 天球の初期化
 	skydome_->Initialize(modelSkydome_, &camera_);
-
-	mapChipField_ = new MapChipField;
-	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
-
-	GeneratteBlocks();
 
 	// デバッグカメラの初期化
 	debugCamera_ = new DebugCamera(1280, 720);
@@ -135,6 +137,7 @@ void GameScene::Update() {
 		// ビュープロジェクション行列の転送
 		camera_.TransferMatrix();
 	} else {
+		
 		// ビュープロジェクション行列の更新と転送
 		camera_.UpdateMatrix();
 		camera_.TransferMatrix();

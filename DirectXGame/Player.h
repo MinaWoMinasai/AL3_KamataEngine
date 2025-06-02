@@ -32,9 +32,9 @@ public:
 		// 着地フラグ
 		bool landing = false;
 		// 壁接触フラグ
-		bool wall = false;
+		bool hitWall = false;
 		// 移動量
-		KamataEngine::Vector3 move = {};
+		KamataEngine::Vector3 velocity = {};
 	};
 
 	/// <summary>
@@ -57,6 +57,15 @@ public:
 	/// </summary>
 	/// <param name="info"></param>
 	void CollisionTop(CollisionMapInfo& info);
+
+	void CollisionBottom(CollisionMapInfo& info);
+
+	void CollisionRight(CollisionMapInfo& info);
+	void CollisionLeft(CollisionMapInfo& info);
+	
+	void SwitchLanding(const CollisionMapInfo& info);
+
+	void CollisionWall(const CollisionMapInfo& info);
 
 	/// <summary>
 	/// マップ衝突判定
@@ -102,7 +111,7 @@ private:
 	KamataEngine::Vector3 velocity_ = {};
 
 	// 加速度
-	static inline const float kAcceleration = 0.01f;
+	static inline const float kAcceleration = 0.02f;
 	// 摩擦
 	static inline const float kAttenuation = 0.05f;
 	// どこを向いているか
@@ -118,11 +127,11 @@ private:
 	// 接地状態フラグ
 	bool onGround_ = true;
 	// 重力加速度(下方向)
-	static inline const float kGravityAcceleration = 0.003f;
+	static inline const float kGravityAcceleration = 0.03f;
 	// 最大落下速度(下方向)
 	static inline const float kLimitFailSpeed = 3.0f;
 	// ジャンプ初速(上方向)
-	static inline const float kJumpAcceleration = 0.2f;
+	static inline const float kJumpAcceleration = 0.5f;
 
 	// マップチップによるフィールド
 	MapChipField* mapChipField_ = nullptr;
@@ -131,7 +140,14 @@ private:
 	static inline const float kWidth = 1.6f;
 	static inline const float kHeight = 1.6f;
 
-	static inline const float kBlank = 0.2f;
+	static inline const float kBlank = 0.05f;
+	
+	// 接地時の判定の調整
+	static inline const float kLandingAdjust = 0.1f;
+
+	// 着地時の速度減衰率
+	static inline const float kAttenuationLanding = 0.1f;
+	static inline const float kAttenuationWall = 0.1f;
 
 };
 

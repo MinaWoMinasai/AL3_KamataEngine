@@ -91,39 +91,6 @@ void Player::Move() {
 		// 落下速度制限
 		velocity_.y = std::max(velocity_.y, -kLimitFailSpeed);
 	}
-	// 着地フラグ
-	bool landing = false;
-
-	// 地面とのあたり判定
-	// 加工中？
-	if (velocity_.y < 0) {
-
-		// Y座標が地面以下になったら着地
-		if (worldTransform_.translation_.y <= 2.0f) {
-			landing = true;
-		}
-	}
-
-	if (onGround_) {
-		// ジャンプ開始
-		if (velocity_.y > 0.0f) {
-			// 空中状態に移行
-			onGround_ = false;
-		}
-	} else {
-
-		// 着地
-		if (landing) {
-			// めり込み排斥
-			worldTransform_.translation_.y = 2.0f;
-			// 摩擦で横方向が減速する
-			velocity_.x *= (1.0f - kAttenuation);
-			// 下方向速度をリセット
-			velocity_.y = 0.0f;
-			// 接地状態に移行
-			onGround_ = true;
-		}
-	}
 
 	if (turnTimer_ > 0.0f) {
 
@@ -148,60 +115,284 @@ void Player::Move() {
 		// 自キャラの角度を設定する
 		worldTransform_.rotation_.y = currentRotationY;
 	}
-
-	// 移動
-	worldTransform_.translation_ += velocity_;
 }
 
 void Player::CollisionTop(CollisionMapInfo& info) {
 
-	std::array<Vector3, kNumCorner> positionsNew;
-
-	for (uint32_t i = 0; i < positionsNew.size(); ++i) {
-		positionsNew[i] = CornerPositon(worldTransform_.translation_ + info.move, static_cast<Corner>(i));
-	}
 	// 上昇あり？
-	if (info.move.y <= 0) {
+	if (info.velocity.y <= 0) {
 		return;
 	}
 
+	std::array<Vector3, kNumCorner> positionsNew;
+	for (uint32_t i = 0; i < positionsNew.size(); ++i) {
+		positionsNew[i] = CornerPositon(worldTransform_.translation_ + info.velocity, static_cast<Corner>(i));
+	}
+
 	MapChipType mapChipType;
+	MapChipType mapChipTypeNext;
 	// 真上のあたり判定を行う
 	bool hit = false;
-	// 左上の判定
+	// (自キャラの)左上の判定
 	MapChipField::IndexSet indexSet;
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftTop]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
-	if (mapChipType == MapChipType::kBlock) {
+	mapChipTypeNext = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex + 1);
+	if (mapChipType == MapChipType::kBlock && mapChipTypeNext != MapChipType::kBlock) {
 		hit = true;
 	}
 	// 右上の判定
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightTop]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
-	if (mapChipType == MapChipType::kBlock) {
+	mapChipTypeNext = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex + 1);
+	if (mapChipType == MapChipType::kBlock && mapChipTypeNext != MapChipType::kBlock) {
 		hit = true;
 	}
 
 	// ブロックにヒット？
 	if (hit) {
 		// めり込みを排除する方向に移動量を設定する
-		indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightTop]);
+		 indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightTop]);
+		 MapChipField::IndexSet indexSetNow;
+		 indexSetNow = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_);
+		
+		 if (indexSetNow.yIndex != indexSet.yIndex) {
 		// めり込み先ブロックの範囲矩形
 		Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
-		info.move.y = std::max(0.0f, rect.bottom - worldTransform_.translation_.y - (kHeight / 2.0f + kBlank));
+		//float newTopY = positionsNew[kRightTop].y - kHeight / 2.0f;
+		info.velocity.y = std::max(0.0f, rect.bottom - worldTransform_.translation_.y - (kHeight / 2.0f + kBlank));
+		//info.velocity.y = std::max(0.0f, rect.bottom - newTopY + kBlank);
+		DebugText::GetInstance()->ConsolePrintf("info.move.y = %f", rect.bottom - worldTransform_.translation_.y - (kHeight / 2.0f));
+
 		// 天井に当たったことを記録する
 		info.ceiling = true;
+		}
 	}
 }
 
-void Player::Collision(CollisionMapInfo& info) { CollisionTop(info); }
+void Player::CollisionBottom(CollisionMapInfo& info) {
+
+	std::array<Vector3, kNumCorner> positionsNew;
+
+	for (uint32_t i = 0; i < positionsNew.size(); ++i) {
+		positionsNew[i] = CornerPositon(worldTransform_.translation_ + info.velocity, static_cast<Corner>(i));
+	}
+	// 下降あり？
+
+	if (info.velocity.y >= 0) {
+		return;
+	}
+	MapChipType mapChipType;
+	MapChipType mapChipTypeNext;
+	// 真上のあたり判定を行う
+	bool hit = false;
+	// 左下の判定
+	MapChipField::IndexSet indexSet;
+	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom] + Vector3(0, -kLandingAdjust, 0));
+	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+	mapChipTypeNext = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex - 1);
+	if (mapChipType == MapChipType::kBlock && mapChipTypeNext != MapChipType::kBlock) {
+		hit = true;
+	}
+	// 右下の判定
+	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom] + Vector3(0, -kLandingAdjust, 0));
+	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+	mapChipTypeNext = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex - 1);
+	if (mapChipType == MapChipType::kBlock && mapChipTypeNext != MapChipType::kBlock) {
+		hit = true;
+	}
+
+	// ブロックにヒット？
+	if (hit) {
+		// めり込みを排除する方向に移動量を設定する
+		 indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom]);
+		 MapChipField::IndexSet indexSetNow;
+		 indexSetNow = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_);
+		
+		 if (indexSetNow.yIndex != indexSet.yIndex) {
+
+		// めり込み先ブロックの範囲矩形
+		Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
+		info.velocity.y = std::min(0.0f, rect.top - worldTransform_.translation_.y + (kHeight / 2.0f + kBlank));
+		// 天井に当たったことを記録する
+		info.landing = true;
+		}
+	}
+}
+
+void Player::CollisionRight(CollisionMapInfo& info) {
+
+	std::array<Vector3, kNumCorner> positionsNew;
+
+	for (uint32_t i = 0; i < positionsNew.size(); ++i) {
+		positionsNew[i] = CornerPositon(worldTransform_.translation_ + info.velocity, static_cast<Corner>(i));
+	}
+
+	// 右移動あり？
+	if (info.velocity.x <= 0.0f) {
+		return;
+	}
+
+	MapChipType mapChipType;
+	MapChipType mapChipTypeNext;
+	// 真上のあたり判定を行う
+	bool hit = false;
+	// 右上の判定
+	MapChipField::IndexSet indexSet;
+	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightTop]);
+	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+	mapChipTypeNext = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex - 1, indexSet.yIndex);
+	if (mapChipType == MapChipType::kBlock && mapChipTypeNext != MapChipType::kBlock) {
+		hit = true;
+	}
+	// 右下の判定
+	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom]);
+	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+	mapChipTypeNext = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex - 1, indexSet.yIndex);
+	if (mapChipType == MapChipType::kBlock && mapChipTypeNext != MapChipType::kBlock) {
+		hit = true;
+	}
+
+	// ブロックにヒット？
+	if (hit) {
+		// めり込みを排除する方向に移動量を設定する
+		 indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightTop]);
+		 MapChipField::IndexSet indexSetNow;
+		 indexSetNow = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_);
+		//// めり込み先ブロックの範囲矩形
+		//
+		 if (indexSetNow.xIndex != indexSet.xIndex) {
+		Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
+		// info.move.x = std::min(0.0f, rect.left - (worldTransform_.translation_.x + (kWidth / 2.0f + kBlank)));
+		info.velocity.x = std::max(0.0f, rect.left - worldTransform_.translation_.x - (kWidth / 2.0f + kBlank));
+		// 壁に当たったことを記録する
+		// DebugText::GetInstance()->ConsolePrintf("landing");
+		info.hitWall = true;
+		}
+	}
+}
+
+void Player::CollisionLeft(CollisionMapInfo& info) {
+
+	std::array<Vector3, kNumCorner> positionsNew;
+
+	for (uint32_t i = 0; i < positionsNew.size(); ++i) {
+		positionsNew[i] = CornerPositon(worldTransform_.translation_ + info.velocity, static_cast<Corner>(i));
+	}
+
+	// 左移動あり？
+	if (info.velocity.x >= 0.0f) {
+		return;
+	}
+
+	MapChipType mapChipType;
+	MapChipType mapChipTypeNext;
+	// 真上のあたり判定を行う
+	bool hit = false;
+	// 左上の判定
+	MapChipField::IndexSet indexSet;
+	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftTop]);
+	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+	mapChipTypeNext = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex + 1, indexSet.yIndex);
+	if (mapChipType == MapChipType::kBlock && mapChipTypeNext != MapChipType::kBlock) {
+		hit = true;
+	}
+	// 左下の判定
+	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom]);
+	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+	mapChipTypeNext = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex + 1, indexSet.yIndex);
+	if (mapChipType == MapChipType::kBlock && mapChipTypeNext != MapChipType::kBlock) {
+		hit = true;
+	}
+
+	// ブロックにヒット？
+	if (hit) {
+
+indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftTop]);
+		 MapChipField::IndexSet indexSetNow;
+		 indexSetNow = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_);
+		
+		 if (indexSetNow.xIndex != indexSet.xIndex) {
+		//  めり込みを排除する方向に移動量を設定する
+		
+		// めり込み先ブロックの範囲矩形
+		Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
+		info.velocity.x = std::min(0.0f, rect.right - worldTransform_.translation_.x + (kWidth / 2.0f + kBlank));
+		// 壁に当たったことを記録する
+		// DebugText::GetInstance()->ConsolePrintf("landing");
+		info.hitWall = true;
+		}
+	}
+}
+
+void Player::SwitchLanding(const CollisionMapInfo& info) {
+	// 自キャラが接地状態？
+	if (onGround_) {
+
+		// ジャンプ開始
+		if (velocity_.y > 0.0f) {
+			onGround_ = false;
+		}
+
+		std::array<Vector3, kNumCorner> positionsNew;
+
+		for (uint32_t i = 0; i < positionsNew.size(); ++i) {
+			positionsNew[i] = CornerPositon(worldTransform_.translation_ + info.velocity, static_cast<Corner>(i));
+		}
+		MapChipType mapChipType;
+		// 真上のあたり判定を行う
+		bool hit = false;
+		// 左下の判定
+		MapChipField::IndexSet indexSet;
+		indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom]);
+		mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+		if (mapChipType == MapChipType::kBlock) {
+			hit = true;
+		}
+		// 右下の判定
+		indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom]);
+		mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+		if (mapChipType == MapChipType::kBlock) {
+			hit = true;
+		}
+
+		// 落下開始
+		if (!hit) {
+			// 空中状態に切り替える
+			onGround_ = false;
+		}
+
+	} else {
+
+		// 着地フラグ
+		if (info.landing) {
+			// 着地状態に切り替える(落下を止める)
+			onGround_ = true;
+			// 着地時にX座標を減衰
+			velocity_.x *= (1.0f - kAttenuationLanding);
+			// Y速度をゼロにする
+			velocity_.y = 0.0f;
+		}
+	}
+}
+
+void Player::CollisionWall(const CollisionMapInfo& info) {
+
+	if (info.hitWall) {
+		velocity_.x *= (1.0f - kAttenuationWall);
+	}
+}
+
+void Player::Collision(CollisionMapInfo& info) {
+	CollisionBottom(info);
+	CollisionTop(info);
+	CollisionLeft(info);
+	CollisionRight(info);
+}
 
 void Player::CollisionMove(const CollisionMapInfo& info) {
 	// 移動
-	if (info.ceiling) {
-
-		worldTransform_.translation_ += info.move;
-	}
+	worldTransform_.translation_ += info.velocity;
 }
 
 void Player::CollisionUpdate(const CollisionMapInfo& info) {
@@ -218,15 +409,15 @@ void Player::Update() {
 	// 衝突判定を初期化
 	CollisionMapInfo collisionMapInfo;
 	// 移動量に速度の値をコピー
-	collisionMapInfo.move = velocity_;
+	collisionMapInfo.velocity = velocity_;
 
 	// マップ衝突チェック
 	Collision(collisionMapInfo);
-	// DebugText::GetInstance()->ConsolePrintf("info.move.y = %f", worldTransform_.translation_.y);
-	CollisionMove(collisionMapInfo);
-	// DebugText::GetInstance()->ConsolePrintf("info.move.y = %f", worldTransform_.translation_.y);
-	CollisionUpdate(collisionMapInfo);
 
+	CollisionUpdate(collisionMapInfo);
+	CollisionWall(collisionMapInfo);
+	SwitchLanding(collisionMapInfo);
+	CollisionMove(collisionMapInfo);
 	// アフィン変換行列を計算してメンバ変数に代入
 	KamataEngine::Matrix4x4 scaleMatrix = MakeScaleMatrix(worldTransform_.scale_);
 	KamataEngine::Matrix4x4 translateMatrix = MakeTranslateMatrix(worldTransform_.translation_);

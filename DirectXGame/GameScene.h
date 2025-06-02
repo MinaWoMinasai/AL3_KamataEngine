@@ -7,6 +7,7 @@
 #include "MapChipField.h"
 #include "CameraContoroller.h"
 #include "Enemy.h"
+#include "HitBox.h"
 
 // ゲームシーン
 class GameScene {
@@ -26,6 +27,9 @@ public:
 	/// 
 	/// </summary>
 	void GeneratteBlocks();
+
+	// そうあたり判定を行う
+	void CheakAllCollisions();
 
 	/// <summary>
 	/// 初期化
@@ -55,7 +59,10 @@ private:
 	KamataEngine::Camera camera_;
 
 	Player* player_ = nullptr;
-	Enemy* enemy_ = nullptr;
+	std::list<Enemy*> enemies_;
+
+	// 敵の数
+	const int32_t kEnemyCount = 3;
 
 	Skydome* skydome_ = nullptr; 
 

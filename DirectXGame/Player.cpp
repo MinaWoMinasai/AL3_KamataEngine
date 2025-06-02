@@ -417,18 +417,9 @@ void Player::Update() {
 	CollisionWall(collisionMapInfo);
 	SwitchLanding(collisionMapInfo);
 	CollisionMove(collisionMapInfo);
-	// アフィン変換行列を計算してメンバ変数に代入
-	KamataEngine::Matrix4x4 scaleMatrix = MakeScaleMatrix(worldTransform_.scale_);
-	KamataEngine::Matrix4x4 translateMatrix = MakeTranslateMatrix(worldTransform_.translation_);
-	KamataEngine::Matrix4x4 rotateXMatrix = MakeRotateXMatrix(worldTransform_.rotation_.x);
-	KamataEngine::Matrix4x4 rotateYMatrix = MakeRotateYMatrix(worldTransform_.rotation_.y);
-	KamataEngine::Matrix4x4 rotateZMatrix = MakeRotateZMatrix(worldTransform_.rotation_.z);
-	KamataEngine::Matrix4x4 affineMatrix = scaleMatrix * rotateXMatrix * rotateYMatrix * rotateZMatrix * translateMatrix;
+	
+	WorldTrnasformUpdate(worldTransform_);
 
-	worldTransform_.matWorld_ = affineMatrix;
-
-	// 定数バッファに転送
-	worldTransform_.TransferMatrix();
 }
 
 void Player::Draw() {
@@ -444,4 +435,33 @@ void Player::Draw() {
 
 	// 3Dモデル描画後処理
 	Model::PostDraw();
+}
+
+Vector3 Player::GetWorldPosition() { 
+	
+	// ワールド座標を入れる変数
+	Vector3 worldPos;
+	// ワールド行列の平行移動成分を取得(ワールド座標)
+	worldPos.x = worldTransform_.translation_.x;
+	worldPos.y = worldTransform_.translation_.y;
+	worldPos.z = worldTransform_.translation_.z;
+
+	return worldPos;
+}
+
+AABB Player::GetAABB() { 
+	Vector3 worldPos = GetWorldPosition();
+
+	AABB aabb;
+
+	aabb.min = {worldPos.x - kWidth / 2.0f, worldPos.y - kHeight / 2.0f, worldPos.z - kWidth / 2.0f};
+	aabb.max = {worldPos.x + kWidth / 2.0f, worldPos.y + kHeight / 2.0f, worldPos.z + kWidth / 2.0f};
+
+	return aabb;
+}
+
+void Player::OnCollision(const Enemy* enemy) { 
+	(void)enemy;
+	// ジャンプ開始(仮)
+	velocity_ += Vector3(0.0f, kJumpAcceleration, 0.0f);
 }

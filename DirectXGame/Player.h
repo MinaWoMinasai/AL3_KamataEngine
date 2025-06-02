@@ -7,7 +7,11 @@
 #include "Easing.h"
 #include <algorithm>
 #include "MapChipField.h"
+#include "WorldTransformClass.h"
+#include "HitBox.h"
 
+// 前方宣言
+class Enemy;
 class MapChipField;
 
 /// <summary>
@@ -85,6 +89,15 @@ public:
 	/// 描画
 	/// </summary>
 	void Draw();
+
+	// ワールド座標を取得
+	KamataEngine::Vector3 GetWorldPosition();
+
+	// AABBを取得
+	AABB GetAABB();
+
+	// 衝突応答
+	void OnCollision(const Enemy* enemy);
 
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
 

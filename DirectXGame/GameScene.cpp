@@ -11,7 +11,10 @@ GameScene::~GameScene() {
 	delete model_;
 	delete modelSkydome_;
 	delete player_;
-	delete enemy_;
+	for (Enemy*& enemy : enemies_) {
+		delete enemy;
+	}
+	enemies_.clear();
 	delete modelBlock_;
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -51,6 +54,31 @@ void GameScene::GeneratteBlocks() {
 	}
 }
 
+void GameScene::CheakAllCollisions() {
+
+	// 自キャラと敵キャラのあたり判定
+	
+	// 判定対象1と2の座標
+	AABB aabb1, aabb2;
+
+	// 自キャラの座標
+	aabb1 = player_->GetAABB();
+
+	// 自キャラと敵弾すべてのあたり判定
+	for (Enemy* enemy : enemies_) {
+		// 敵弾の座標
+		aabb2 = enemy->GetAABB();
+
+		// AABB同士の当たり判定
+		if (IsCollision(aabb1, aabb2)) {
+			// 自キャラの衝突時コールバックを呼び出す
+			player_->OnCollision(enemy);
+			// 敵キャラの衝突時コールバックを呼び出す
+			enemy->OnCollision(player_);
+		}
+	}
+}
+
 void GameScene::Initialize() {
 
 	// ファイル名を指定してテクスチャを読み込む
@@ -84,16 +112,13 @@ void GameScene::Initialize() {
 
 	player_->SetMapChipField(mapChipField_);
 
-	// 敵キャラの生成
-	enemy_ = new Enemy();
-
-	// 座標をマップチップ番号で指定
-	Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(25, 17);
-
-	// 敵キャラの初期化
-	enemy_->Initialize(modelEnemy_, &camera_, enemyPosition);
-
-	enemy_->SetMapChipField(mapChipField_);
+	// 敵の生成と初期化
+	for (int32_t i = 0; i < kEnemyCount; i++) {
+		Enemy* newEnemy = new Enemy();
+		Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(25, 13 + i * 2);
+		newEnemy->Initialize(modelEnemy_, &camera_, enemyPosition);
+		enemies_.push_back(newEnemy);
+	}
 
 	// 天球の生成
 	skydome_ = new Skydome();
@@ -116,7 +141,12 @@ void GameScene::Update() {
 
 	player_->Update();
 
-	enemy_->Update();
+	for (Enemy*& enemy : enemies_) {
+		enemy->Update();
+	}
+
+	// あたり判定を行う
+	CheakAllCollisions();
 
 	cameraContoroller_->Update();
 
@@ -169,8 +199,10 @@ void GameScene::Update() {
 void GameScene::Draw() {
 
 	// 敵の描画
-	enemy_->Draw();
-
+	for (Enemy*& enemy : enemies_) {
+		enemy->Draw();
+	}
+	
 	// プレイヤーの描画
 	player_->Draw();
 

@@ -8,6 +8,9 @@
 #include <algorithm>
 #include "MapChipField.h"
 #include "WorldTransformClass.h"
+#include "HitBox.h"
+
+class Player;
 
 class Enemy {
 
@@ -32,6 +35,15 @@ public:
 	/// </summary>
 	void Draw();
 
+	// ワールド座標を取得
+	KamataEngine::Vector3 GetWorldPosition();
+	
+	// AABBを取得
+	AABB GetAABB();
+
+	// 衝突応答
+	void OnCollision(const Player* player);
+
 private:
 	
 	// ワールド変換データ
@@ -50,6 +62,10 @@ private:
 
 	// マップチップによるフィールド
 	MapChipField* mapChipField_ = nullptr;
+
+	// キャラクターの当たり判定サイズ
+	static inline const float kWidth = 1.6f;
+	static inline const float kHeight = 1.6f;
 
 	// 歩行の速さ
 	static inline const float kWalkSpeed = 0.02f;

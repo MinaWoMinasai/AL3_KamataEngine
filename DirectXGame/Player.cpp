@@ -3,14 +3,13 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
-void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Camera* camera, const KamataEngine::Vector3& position) {
+void Player::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position) {
 
 	// NULLポインタチェック
 	assert(model);
 
 	// 引数の内容をメンバ変数に記録
 	model_ = model;
-	textureHandle_ = textureHandle;
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();

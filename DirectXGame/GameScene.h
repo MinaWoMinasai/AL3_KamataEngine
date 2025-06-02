@@ -6,6 +6,7 @@
 #include "Skydome.h"
 #include "MapChipField.h"
 #include "CameraContoroller.h"
+#include "Enemy.h"
 
 // ゲームシーン
 class GameScene {
@@ -48,11 +49,13 @@ private:
 	// 3Dモデル
 	KamataEngine::Model* model_ = nullptr;
 	KamataEngine::Model* modelSkydome_ = nullptr;
+	KamataEngine::Model* modelEnemy_ = nullptr;
 
 	// カメラ
 	KamataEngine::Camera camera_;
 
 	Player* player_ = nullptr;
+	Enemy* enemy_ = nullptr;
 
 	Skydome* skydome_ = nullptr; 
 

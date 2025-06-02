@@ -186,6 +186,12 @@ float easeInOutBounce(float t) {
 	}
 }
 
+float Lerp(const float& start, const float& end, const float t) {
+
+	// 線形補間
+	return start + (end - start) * t;
+}
+
 KamataEngine::Vector3 Lerp(const KamataEngine::Vector3& start, const KamataEngine::Vector3& end, float t) {
 
 	// 線形補間

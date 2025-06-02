@@ -1,0 +1,62 @@
+#pragma once
+#define NOMINMAX
+#include "KamataEngine.h"
+#include <Windows.h>
+#include <numbers>
+#include <vector>
+#include "Easing.h"
+#include <algorithm>
+#include "MapChipField.h"
+#include "WorldTransformClass.h"
+
+class Enemy {
+
+public:
+	
+	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
+
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	/// <param name="model">モデル</param>
+	/// <param name="camera">カメラ</param>
+	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
+
+	/// <summary>
+	/// 更新
+	/// </summary>
+	void Update();
+
+	/// <summary>
+	/// 描画
+	/// </summary>
+	void Draw();
+
+private:
+	
+	// ワールド変換データ
+	KamataEngine::WorldTransform worldTransform_;
+	// モデル
+	KamataEngine::Model* model_ = nullptr;
+	// テクスチャハンドル
+	uint32_t textureHandle_ = 0u;
+	// カメラ
+	KamataEngine::Camera* camera_ = nullptr;
+
+	// 速度
+	KamataEngine::Vector3 velocity_ = {};
+	// 経過時間
+	float walkTimer_ = 0.0f;
+
+	// マップチップによるフィールド
+	MapChipField* mapChipField_ = nullptr;
+
+	// 歩行の速さ
+	static inline const float kWalkSpeed = 0.02f;
+	// 最初の角度
+	static inline const float kWalkMotionAngleStart = std::numbers::pi_v<float> * 2.0f;
+	// 最後の角度
+	static inline const float kWalkMotionAngleEnd = std::numbers::pi_v<float>; 
+	// アニメーションの周期になる時間[秒]
+	static inline const float kWalkMotionTime = 2.0f;
+};

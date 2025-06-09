@@ -8,6 +8,7 @@
 #include "CameraContoroller.h"
 #include "Enemy.h"
 #include "HitBox.h"
+#include "DeathParticles.h"
 
 // ゲームシーン
 class GameScene {
@@ -54,13 +55,15 @@ private:
 	KamataEngine::Model* model_ = nullptr;
 	KamataEngine::Model* modelSkydome_ = nullptr;
 	KamataEngine::Model* modelEnemy_ = nullptr;
+	KamataEngine::Model* modelDeathParticle_ = nullptr;
 
 	// カメラ
 	KamataEngine::Camera camera_;
 
 	Player* player_ = nullptr;
 	std::list<Enemy*> enemies_;
-
+	DeathParticles* deathParticles_ = nullptr;
+	
 	// 敵の数
 	const int32_t kEnemyCount = 3;
 

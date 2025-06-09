@@ -25,6 +25,7 @@ GameScene::~GameScene() {
 	delete debugCamera_;
 	delete mapChipField_;
 	delete cameraContoroller_;
+	delete deathParticles_;
 }
 
 void GameScene::GeneratteBlocks() {
@@ -88,6 +89,7 @@ void GameScene::Initialize() {
 	model_ = Model::CreateFromOBJ("Player", true);
 	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
 	modelEnemy_ = Model::CreateFromOBJ("Player", true);
+	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle", true); 
 
 	// ブロックの3Dモデルの生成
 	modelBlock_ = Model::CreateFromOBJ("block", true);
@@ -111,6 +113,9 @@ void GameScene::Initialize() {
 	player_->Initialize(model_, &camera_, playerPosition);
 
 	player_->SetMapChipField(mapChipField_);
+
+	deathParticles_ = new DeathParticles;
+	deathParticles_->Initialize(modelDeathParticle_, &camera_, playerPosition);
 
 	// 敵の生成と初期化
 	for (int32_t i = 0; i < kEnemyCount; i++) {
@@ -149,6 +154,8 @@ void GameScene::Update() {
 	CheakAllCollisions();
 
 	cameraContoroller_->Update();
+
+	deathParticles_->Update();
 
 	skydome_->Update();
 
@@ -208,6 +215,8 @@ void GameScene::Draw() {
 
 	// 天球の描画
 	skydome_->Draw();
+
+	deathParticles_->Draw();
 
 	// DirectXCommonのインスタンスの取得
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();

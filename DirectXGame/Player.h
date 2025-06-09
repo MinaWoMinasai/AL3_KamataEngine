@@ -46,6 +46,7 @@ public:
 	/// </summary>
 	/// <param name="model">モデル</param>
 	/// <param name="camera">カメラ</param>
+	/// <param name="position">初期座標</param>
 	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
 
 	KamataEngine::Vector3 CornerPositon(const KamataEngine::Vector3& center, Corner corner);

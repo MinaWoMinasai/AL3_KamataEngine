@@ -106,6 +106,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DeathParticles.cpp" />
     <ClCompile Include="HitBox.cpp" />
     <ClCompile Include="CameraContoroller.cpp" />
     <ClCompile Include="Easing.cpp" />
@@ -193,6 +194,7 @@
     <None Include="Resources\shaders\Sprite.hlsli" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DeathParticles.h" />
     <ClInclude Include="HitBox.h" />
     <ClInclude Include="CameraContoroller.h" />
     <ClInclude Include="Easing.h" />

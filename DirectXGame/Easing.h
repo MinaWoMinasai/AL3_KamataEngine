@@ -37,4 +37,8 @@
 
 	float Lerp(const float& start, const float& end, const float t);
 	KamataEngine::Vector3 Lerp(const KamataEngine::Vector3& start, const KamataEngine::Vector3& end, float t);
+
+    KamataEngine::Vector3 Normalize(const KamataEngine::Vector3& v);
+
+
 #pragma endregion

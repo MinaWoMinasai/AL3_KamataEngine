@@ -200,4 +200,16 @@ KamataEngine::Vector3 Lerp(const KamataEngine::Vector3& start, const KamataEngin
 	return result;
 }
 
+KamataEngine::Vector3 Normalize(const KamataEngine::Vector3& v) { 
+	
+	float length = sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
+
+	Vector3 result;
+	result.x = v.x / length;
+	result.y = v.y / length;
+	result.z = v.z / length;
+
+	return result;
+}
+
 #pragma endregion

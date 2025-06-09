@@ -9,6 +9,7 @@
 #include "MapChipField.h"
 #include "WorldTransformClass.h"
 #include "HitBox.h"
+#include "Player.h"
 
 class Player;
 
@@ -23,12 +24,12 @@ public:
 	/// </summary>
 	/// <param name="model">モデル</param>
 	/// <param name="camera">カメラ</param>
-	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
+	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position, const KamataEngine::Vector3 playerpositon);
 
 	/// <summary>
 	/// 更新
 	/// </summary>
-	void Update();
+	void Update(const KamataEngine::Vector3 playerpositon);
 
 	/// <summary>
 	/// 描画
@@ -75,4 +76,7 @@ private:
 	static inline const float kWalkMotionAngleEnd = std::numbers::pi_v<float>; 
 	// アニメーションの周期になる時間[秒]
 	static inline const float kWalkMotionTime = 2.0f;
+
+	KamataEngine::Vector3 playerPosition_;
+
 };

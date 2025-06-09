@@ -3,7 +3,7 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
-void Enemy::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position) {
+void Enemy::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position, const KamataEngine::Vector3 playerpositon) {
 
 	// NULLポインタチェック
 	assert(model);
@@ -21,9 +21,19 @@ void Enemy::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera,
 	worldTransform_.rotation_.y = std::numbers::pi_v<float> * 2.0f;
 	velocity_ = {-kWalkSpeed, 0, 0};
 	walkTimer_ = 0.0f;
+	playerPosition_ = playerpositon;
 }
 
-void Enemy::Update() {
+void Enemy::Update(const KamataEngine::Vector3 playerpositon) {
+
+	// ホーミング
+	// プレイヤーの位置を格納
+	
+	playerPosition_ = playerpositon;
+
+	Vector3 targetDir = Normalize(playerPosition_ - worldTransform_.translation_);
+
+	velocity_ = Lerp(velocity_, targetDir * 0.1f, /*std::clamp(walkTimer_, 0.0f, 1.0f)*/0.01f);
 
 	// 移動
 	worldTransform_.translation_ += velocity_;

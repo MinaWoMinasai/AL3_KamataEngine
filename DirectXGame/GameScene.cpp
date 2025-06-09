@@ -121,7 +121,7 @@ void GameScene::Initialize() {
 	for (int32_t i = 0; i < kEnemyCount; i++) {
 		Enemy* newEnemy = new Enemy();
 		Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(25, 13 + i * 2);
-		newEnemy->Initialize(modelEnemy_, &camera_, enemyPosition);
+		newEnemy->Initialize(modelEnemy_, &camera_, enemyPosition, playerPosition);
 		enemies_.push_back(newEnemy);
 	}
 
@@ -147,7 +147,7 @@ void GameScene::Update() {
 	player_->Update();
 
 	for (Enemy*& enemy : enemies_) {
-		enemy->Update();
+		enemy->Update(player_->GetWorldPosition());
 	}
 
 	// あたり判定を行う

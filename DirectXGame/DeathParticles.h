@@ -33,6 +33,9 @@ public:
 	/// </summary>
 	void Draw();
 
+	// 終了フラグのゲッター
+	bool IsFinished() const { return isFinished_; }
+
 private:
 
 	// モデル

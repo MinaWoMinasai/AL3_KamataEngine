@@ -105,6 +105,9 @@ public:
 	// ワールドトランスフォームを取得
 	KamataEngine::WorldTransform& GetWorldTransform() { return worldTransform_; }
 
+	// デスフラグのgetter
+	bool IsDead() const { return isDead; }
+
 private:
 
 	enum class LRDirection {
@@ -162,5 +165,8 @@ private:
 	static inline const float kAttenuationLanding = 0.1f;
 	static inline const float kAttenuationWall = 0.1f;
 
+	// デスフラグ
+	bool isDead = false;
+	
 };
 

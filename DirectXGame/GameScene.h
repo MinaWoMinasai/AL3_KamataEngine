@@ -13,6 +13,15 @@
 // ゲームシーン
 class GameScene {
 
+// ゲームのフェーズ(型)
+enum class Phase {
+	kPley, // ゲームプレイ
+	kDeath, // デス演出
+};
+
+// ゲームの現在フェーズ
+Phase phase_;
+
 public:
 	/// <summary>
 	/// コンストラクタ
@@ -32,6 +41,9 @@ public:
 	// そうあたり判定を行う
 	void CheakAllCollisions();
 
+	// シーンチェンジ
+	void ChengePhase();
+
 	/// <summary>
 	/// 初期化
 	/// </summary>
@@ -47,6 +59,9 @@ public:
 	/// </summary>
 	void Draw();
 
+	// 終了フラグのゲッター
+	bool IsFinished() const { return finished_; }
+
 private:
 	// テクスチャハンドル
 	uint32_t textureHandle_ = 0;
@@ -56,6 +71,7 @@ private:
 	KamataEngine::Model* modelSkydome_ = nullptr;
 	KamataEngine::Model* modelEnemy_ = nullptr;
 	KamataEngine::Model* modelDeathParticle_ = nullptr;
+	KamataEngine::Model* modelTitleText_ = nullptr;
 
 	// カメラ
 	KamataEngine::Camera camera_;
@@ -86,5 +102,8 @@ private:
 
 	// カメラコントローラー
 	CameraContoroller* cameraContoroller_ = nullptr;
+
+	// 終了フラグ
+	bool finished_ = false;
 
 };

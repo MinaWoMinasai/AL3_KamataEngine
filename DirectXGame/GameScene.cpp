@@ -13,7 +13,7 @@ GameScene::~GameScene() {
 void GameScene::Initialize() {
 
 	// ビュープロジェクションの初期化
-	viewProjection_.farZ = 10.0f;
+	//viewProjection_.farZ = 10.0f;
 	viewProjection_.Initialize();
 	
 	// ファイル名を指定してテクスチャを読み込む

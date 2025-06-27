@@ -26,6 +26,7 @@ GameScene::~GameScene() {
 	delete mapChipField_;
 	delete cameraContoroller_;
 	delete deathParticles_;
+	delete fade_;
 }
 
 void GameScene::GeneratteBlocks() {
@@ -83,6 +84,16 @@ void GameScene::CheakAllCollisions() {
 void GameScene::ChengePhase() {
 
 	switch (phase_) {
+	case GameScene::Phase::kFadeIn:
+
+		fade_->Update();
+		if (fade_->IsFinished()) {
+			fade_->Stop();
+			phase_ = Phase::kPley;
+		}
+
+		break;
+
 	case GameScene::Phase::kPley:
 
 		// プレイヤーがデスしたか
@@ -102,16 +113,23 @@ void GameScene::ChengePhase() {
 		break;
 	case GameScene::Phase::kDeath:
 		break;
-	default:
+
+	case Phase::kFadeOut:
+		
+		if (fade_->IsFinished()) {
+			finished_ = true;
+			fade_->Stop();
+		}
+		fade_->Update();
+
 		break;
 	}
-
 }
 
 void GameScene::Initialize() {
 
 	// ゲームプレイフェーズから開始
-	phase_ = Phase::kPley;
+	phase_ = Phase::kFadeIn;
 
 	// 3Dモデルの生成
 	model_ = Model::CreateFromOBJ("Player", true);
@@ -166,6 +184,10 @@ void GameScene::Initialize() {
 	cameraContoroller_->SetTarget(player_);
 	cameraContoroller_->Reset();
 	cameraContoroller_->SetMovebleArea({22, 100, 12, 100});
+	fade_ = new Fade();
+	fade_->Initialize();
+
+	fade_->Start(Fade::Status::FadeIn, kDuration);
 }
 
 // 更新
@@ -174,7 +196,9 @@ void GameScene::Update() {
 	ChengePhase();
 
 	switch (phase_) {
+
 	case GameScene::Phase::kPley:
+	case GameScene::Phase::kFadeIn:
 		
 		// 天球の更新
 		skydome_->Update();
@@ -232,10 +256,14 @@ void GameScene::Update() {
 
 		break;
 	case GameScene::Phase::kDeath:
+	case GameScene::Phase::kFadeOut:
 		
 		// ゲームシーン終了
 		if (deathParticles_ && deathParticles_->IsFinished()) {
-			finished_ = true;
+			if (phase_ == Phase::kDeath) {
+				fade_->Start(Fade::Status::FadeOut, kDuration);
+				phase_ = Phase::kFadeOut;
+			}
 		}
 
 		// 天球の描画
@@ -332,11 +360,12 @@ void GameScene::Draw() {
 				continue;
 	
 			modelBlock_->Draw(*worldTransformBlock, camera_);
-			//modelBlock_->Draw(*worldTransformBlock, debugCamera_->GetCamera());
 		}
 	}
 
 	// 3Dモデル描画後処理
 	Model::PostDraw();
 
+	// フェードの描画
+	fade_->Draw();
 }

@@ -9,14 +9,17 @@
 #include "Enemy.h"
 #include "HitBox.h"
 #include "DeathParticles.h"
+#include "Fade.h"
 
 // ゲームシーン
 class GameScene {
 
 // ゲームのフェーズ(型)
 enum class Phase {
+	kFadeIn,
 	kPley, // ゲームプレイ
 	kDeath, // デス演出
+	kFadeOut,
 };
 
 // ゲームの現在フェーズ
@@ -105,5 +108,10 @@ private:
 
 	// 終了フラグ
 	bool finished_ = false;
+
+	Fade* fade_ = nullptr;
+
+	// フェード時間
+	static inline const float kDuration = 2.0f;
 
 };

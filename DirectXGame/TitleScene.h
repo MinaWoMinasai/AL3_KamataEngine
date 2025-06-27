@@ -4,10 +4,20 @@
 #include "GameScene.h"
 #include "WorldTransformClass.h"
 #include <numbers>
+#include "Fade.h"
+
 
 class TitleScene {
 
 public:
+
+	enum class Phase { 
+		kFadeIn,
+		kMain,
+		kFadeOut,
+	};
+
+
 	~TitleScene();
 
 	/// <summary>
@@ -47,4 +57,14 @@ private:
 	KamataEngine::Camera camera_;
 
 	float time = 0.0f;
+
+	// フェード
+	Fade* fade_ = nullptr;
+
+	// フェード時間
+	static inline const float kDuration = 2.0f; 
+
+	// 現在のフェーズ
+	Phase phase_ = Phase::kFadeIn;
+
 };

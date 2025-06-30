@@ -2,8 +2,6 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
-Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate);
-
 void WorldTransformUpdate(KamataEngine::WorldTransform& worldTransform) {
 
 	// スケール、回転、平行移動を合成して行列を計算する

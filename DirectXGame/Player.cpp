@@ -2,6 +2,13 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
+Player::~Player() {
+	// bullet_の開放
+	for (PlayerBullet* bullet : bullets_) {
+		delete bullet;
+	}
+}
+
 void Player::Rotate() {
 	const float kRotSpeed = 0.02f;
 
@@ -14,13 +21,14 @@ void Player::Rotate() {
 }
 
 void Player::Attack() {
-	if (input_->PushKey(DIK_SPACE)) {
+	if (input_->TriggerKey(DIK_SPACE)) {
+		
 		// 弾を生成し、初期化
 		PlayerBullet* newBullet = new PlayerBullet();
 		newBullet->Initialize(model_, worldTransform_.translation_);
 
 		// 弾を登録する
-		bullet_ = newBullet;
+		bullets_.push_back(newBullet);
 
 	}
 }
@@ -73,8 +81,8 @@ void Player::Update() {
 	// 攻撃処理
 	Attack();
 
-	if (bullet_) {
-		bullet_->Update();
+	for (PlayerBullet* bullet : bullets_) {
+		bullet->Update();
 	}
 
 	// 範囲を超えない処理
@@ -93,8 +101,8 @@ void Player::Draw(KamataEngine::Camera& viewProjection) {
 	Model::PreDraw(dxCommon->GetCommandList());
 
 	// 弾の描画
-	if (bullet_) {
-		bullet_->Draw(viewProjection);
+	for (PlayerBullet* bullet : bullets_) {
+		bullet->Draw(viewProjection);
 	}
 
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);

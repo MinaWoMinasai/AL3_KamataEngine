@@ -4,10 +4,7 @@
 #include <Windows.h>
 #include <algorithm>
 #include "PlayerBullet.h"
-
-// 前方宣言
-class Enemy;
-class MapChipField;
+#include <list>
 
 /// <summary>
 /// 自キャラ
@@ -15,6 +12,11 @@ class MapChipField;
 class Player {
 
 public:
+
+	/// <summary>
+	/// デストラクタ
+	/// </summary>
+	~Player();
 
 	/// <summary>
 	/// 旋回
@@ -56,7 +58,7 @@ private:
 	KamataEngine::Input* input_ = nullptr;
 
 	// 弾
-	PlayerBullet* bullet_ = nullptr; 
+	std::list<PlayerBullet*> bullets_;
 
 };
 

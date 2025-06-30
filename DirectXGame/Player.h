@@ -2,6 +2,7 @@
 #include "KamataEngine.h"
 #include "WorldTransformClass.h"
 #include <Windows.h>
+#include <algorithm>
 
 // 前方宣言
 class Enemy;
@@ -39,6 +40,9 @@ private:
 	KamataEngine::Model* model_ = nullptr;
 	// テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
+
+	// キーボード入力
+	KamataEngine::Input* input_ = nullptr;
 
 };
 

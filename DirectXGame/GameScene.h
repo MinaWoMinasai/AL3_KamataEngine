@@ -46,5 +46,12 @@ private:
 	// モデル
 	KamataEngine::Model *playerModel_;
 
+	// デバッグカメラ有効
+	bool isDebugCameraActive_ = false;
 
+	// デバッグカメラ
+	KamataEngine::DebugCamera* debugCamera_ = nullptr;
+
+	// キーボード入力
+	KamataEngine::Input* input_ = nullptr;
 };

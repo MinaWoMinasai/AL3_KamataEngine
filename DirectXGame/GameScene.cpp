@@ -36,7 +36,7 @@ void GameScene::Initialize() {
 	// 軸方向表示の表示を有効にする
 	AxisIndicator::GetInstance()->SetVisible(true);
 	// 軸方向表示が参照するビュープロジェクションをしていする
-	//AxisIndicator::GetInstance()->SetTargetCamera(&viewProjection_);
+	AxisIndicator::GetInstance()->SetTargetCamera(&viewProjection_);
 
 
 }

@@ -3,4 +3,4 @@
 #include <Windows.h>
 #include <vector>
 
-void WorldTrnasformUpdate(KamataEngine::WorldTransform& worldTransform);
+void WorldTransformUpdate(KamataEngine::WorldTransform& worldTransform);

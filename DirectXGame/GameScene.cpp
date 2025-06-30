@@ -18,7 +18,7 @@ void GameScene::Initialize() {
 	viewProjection_.Initialize();
 	
 	// ファイル名を指定してテクスチャを読み込む
-	textureHandle_ = TextureManager::Load("sample.png");
+	textureHandle_ = TextureManager::Load("player.png");
 
 	// 3Dモデルの生成
 	playerModel_ = Model::Create();
@@ -37,8 +37,6 @@ void GameScene::Initialize() {
 	AxisIndicator::GetInstance()->SetVisible(true);
 	// 軸方向表示が参照するビュープロジェクションをしていする
 	AxisIndicator::GetInstance()->SetTargetCamera(&viewProjection_);
-
-
 }
 
 void GameScene::Update() {
@@ -62,7 +60,7 @@ void GameScene::Update() {
 	}
 
 #ifdef  _DEBUG
-	if (input_->TriggerKey(DIK_SPACE)) {
+	if (input_->TriggerKey(DIK_LSHIFT)) {
 		isDebugCameraActive_ = true;
 	}
 #endif

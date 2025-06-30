@@ -3,6 +3,7 @@
 #include "WorldTransformClass.h"
 #include <Windows.h>
 #include <algorithm>
+#include "PlayerBullet.h"
 
 // 前方宣言
 class Enemy;
@@ -14,6 +15,16 @@ class MapChipField;
 class Player {
 
 public:
+
+	/// <summary>
+	/// 旋回
+	/// </summary>
+	void Rotate();
+
+	/// <summary>
+	/// 攻撃
+	/// </summary>
+	void Attack();
 
 	/// <summary>
 	/// 初期化
@@ -43,6 +54,9 @@ private:
 
 	// キーボード入力
 	KamataEngine::Input* input_ = nullptr;
+
+	// 弾
+	PlayerBullet* bullet_ = nullptr; 
 
 };
 

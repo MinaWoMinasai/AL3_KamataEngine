@@ -9,6 +9,7 @@ GameScene::~GameScene() {
 	// 自キャラの解放
 	delete player_;
 	delete debugCamera_;
+	delete enemy_;
 }
 
 void GameScene::Initialize() {
@@ -19,14 +20,22 @@ void GameScene::Initialize() {
 	
 	// ファイル名を指定してテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("player.png");
+	enemyTextureHandle_ = TextureManager::Load("enemy.png");
 
 	// 3Dモデルの生成
 	playerModel_ = Model::Create();
+	enemyModel_ = Model::Create();
 
 	// 自キャラの生成
 	player_ = new Player();
 	// 自キャラの初期化
 	player_->Initialize(playerModel_, textureHandle_);
+
+	// 敵キャラの生成
+	enemy_ = new Enemy();
+	// 敵キャラの初期化
+	Vector3 enemyPosition = {0.0f, 5.0f, 20.0f};
+	enemy_->Initialize(enemyModel_, enemyTextureHandle_, enemyPosition);
 
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
@@ -43,6 +52,9 @@ void GameScene::Update() {
 
 	// プレイヤーの更新
 	player_->Update();
+
+	// 敵の更新
+	enemy_->Update();
 
 	if (isDebugCameraActive_) {
 		debugCamera_->Update();
@@ -75,6 +87,9 @@ void GameScene::Draw() {
 
 	// 描画開始
 	Model::PreDraw(dxCommon->GetCommandList());
+
+	// 敵の描画
+	enemy_->Draw(viewProjection_);
 
 	// プレイヤーの描画
 	player_->Draw(viewProjection_);

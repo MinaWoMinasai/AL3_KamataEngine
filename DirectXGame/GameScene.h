@@ -2,6 +2,7 @@
 #include "KamataEngine.h"
 #include <Windows.h>
 #include "Player.h"
+#include "Enemy.h"
 
 // ゲームシーン
 class GameScene {
@@ -43,8 +44,14 @@ private:
 	// テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
 
+	// 敵キャラ
+	Enemy* enemy_ = nullptr;
+	// テクスチャハンドル
+	uint32_t enemyTextureHandle_ = 0u;
+
 	// モデル
 	KamataEngine::Model *playerModel_;
+	KamataEngine::Model* enemyModel_;
 
 	// デバッグカメラ有効
 	bool isDebugCameraActive_ = false;

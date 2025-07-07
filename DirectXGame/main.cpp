@@ -35,7 +35,7 @@ void DrawScene();
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	// エンジンの初期化
-	Initialize(L"LE2A_13_ホリケ_ハヤト_AL3_確認課題_02_13");
+	Initialize(L"LE2A_13_ホリケ_ハヤト_AL3_確認課題_02_14");
 
 	// DirectXCommonのインスタンスの取得
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
@@ -47,12 +47,12 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	// タイトルの初期化
 	titleScene->Initialize();
-//
-//#ifdef _DEBUG
-//	scene = Scene::kGame;
-//	gameScene = new GameScene();
-//	gameScene->Initialize();
-//#endif
+
+#ifdef _DEBUG
+	scene = Scene::kGame;
+	gameScene = new GameScene();
+	gameScene->Initialize();
+#endif
 
 	// メインループ
 	while (true) {

@@ -133,6 +133,7 @@ void GameScene::Initialize() {
 
 	// 3Dモデルの生成
 	model_ = Model::CreateFromOBJ("Player", true);
+	playerAttackModel_ = Model::CreateFromOBJ("block", true);
 	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
 	modelEnemy_ = Model::CreateFromOBJ("Player", true);
 	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle", true); 
@@ -151,10 +152,10 @@ void GameScene::Initialize() {
 	player_ = new Player();
 
 	// 座標をマップチップ番号で指定
-	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(3, 12);
+	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(3, 13);
 
 	// 自キャラの初期化
-	player_->Initialize(model_, &camera_, playerPosition);
+	player_->Initialize(model_, playerAttackModel_, &camera_, playerPosition);
 
 	player_->SetMapChipField(mapChipField_);
 
@@ -320,7 +321,7 @@ void GameScene::Update() {
 
 
 #ifdef _DEBUG
-	if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+	if (Input::GetInstance()->TriggerKey(DIK_LSHIFT)) {
 		isDebugCameraActive_ = true;
 	}
 #endif
@@ -329,6 +330,12 @@ void GameScene::Update() {
 
 // 描画
 void GameScene::Draw() {
+
+	// DirectXCommonのインスタンスの取得
+	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
+
+	// 3Dモデル描画前処理
+	Model::PreDraw(dxCommon->GetCommandList());
 
 	// 敵の描画
 	for (Enemy*& enemy : enemies_) {
@@ -346,12 +353,6 @@ void GameScene::Draw() {
 		// プレイヤーの描画
 		player_->Draw();
 	}
-
-	// DirectXCommonのインスタンスの取得
-	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
-
-	// 3Dモデル描画前処理
-	Model::PreDraw(dxCommon->GetCommandList());
 
 	//	ブロックの描画
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {

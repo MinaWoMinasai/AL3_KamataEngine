@@ -1,18 +1,22 @@
 #include "Player.h"
 #include "ImGui.h"
+ #include <cmath>
 using namespace KamataEngine;
 using namespace MathUtility;
 
-void Player::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position) {
+void Player::Initialize(KamataEngine::Model* model, KamataEngine::Model* modelAttack, KamataEngine::Camera* camera, const KamataEngine::Vector3& position) {
 
 	// NULLポインタチェック
 	assert(model);
+	assert(modelAttack);
 
 	// 引数の内容をメンバ変数に記録
 	model_ = model;
+	modelAttack_ = modelAttack;
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
+	worldTransformAttack_.Initialize();
 
 	// 引数の内容をメンバ変数に記録
 	camera_ = camera;
@@ -401,7 +405,22 @@ void Player::CollisionUpdate(const CollisionMapInfo& info) {
 	}
 }
 
-void Player::Update() {
+void Player::BehaviorRootinitialize() {}
+
+void Player::BehaviorAttackInitialize() {
+
+	attackTimer = 0;
+	velocity_ = {0.0f, 0.0f, 0.0f};
+}
+
+void Player::BehaviorRootUpdate() {
+
+	// 攻撃キーを押したら
+	if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+	
+		// 攻撃ビヘイビアをリクエスト
+		behavierRequest_ = Behavior::kAttack;
+	}
 
 	Move();
 
@@ -417,24 +436,145 @@ void Player::Update() {
 	CollisionWall(collisionMapInfo);
 	SwitchLanding(collisionMapInfo);
 	CollisionMove(collisionMapInfo);
-	
+
+	WorldTrnasformUpdate(worldTransform_);
+}
+
+void Player::BehaviorAttackUpdate() {
+
+	// 攻撃動作用の速度
+	Vector3 velocity{};
+
+	attackTimer += 1.0f / 60.0f;
+
+	float t;
+	float easedT;
+
+	switch (attackPhase_) {
+	case Player::AttackPhase::accumulate:
+	default:
+		t = static_cast<float>(attackTimer) / kAccumulate;
+
+		// イージング補間値を取得
+		easedT = easeOutCubic(t);
+
+		// 開始角度から終了角度へイージング補間
+		worldTransform_.scale_.z = std::lerp(1.0f, 0.3f, easedT);
+		worldTransform_.scale_.y = std::lerp(1.0f, 1.6f, easedT);
+
+		// 全身動作へ平行
+		if (attackTimer >= kAccumulate) {
+
+			attackPhase_ = AttackPhase::rush;
+			attackTimer = 0; // カウンターをリセット
+		}
+
+		break;
+	case Player::AttackPhase::rush:
+
+		if (lrDirection_ == LRDirection::kRight) {
+			velocity.x = +attackVelocity;
+		} else if (lrDirection_ == LRDirection::kLeft) {
+			velocity.x = -attackVelocity;
+		}
+
+		t = static_cast<float>(attackTimer) / kRush;
+
+		// イージング補間値を取得
+		easedT = easeOutCubic(t);
+
+		// 開始角度から終了角度へイージング補間
+		worldTransform_.scale_.z = std::lerp(0.3f, 1.3f, easedT);
+		worldTransform_.scale_.y = std::lerp(1.6f, 0.7f, easedT);
+
+		// 全身動作へ平行
+		if (attackTimer >= kRush) {
+
+			attackPhase_ = AttackPhase::afterglow;
+			attackTimer = 0;
+		}
+
+		break;
+	case Player::AttackPhase::afterglow:
+
+		t = static_cast<float>(attackTimer) / kAfterGraw;
+
+		// イージング補間値を取得
+		easedT = easeOutCubic(t);
+
+		// 開始角度から終了角度へイージング補間
+		worldTransform_.scale_.z = std::lerp(1.3f, 1.0f, easedT);
+		worldTransform_.scale_.y = std::lerp(0.7f, 1.0f, easedT);
+
+		if (attackTimer >= kAfterGraw) {
+			attackPhase_ = AttackPhase::accumulate;
+			behavierRequest_ = Behavior::kRoot;
+		}
+
+		break;
+	}
+
+	// 衝突判定を初期化
+	CollisionMapInfo collisionMapInfo;
+	// 移動量に速度の値をコピー
+	collisionMapInfo.velocity = velocity;
+
+	// マップ衝突チェック
+	Collision(collisionMapInfo);
+
+	CollisionUpdate(collisionMapInfo);
+	CollisionWall(collisionMapInfo);
+	SwitchLanding(collisionMapInfo);
+	CollisionMove(collisionMapInfo);
+
+	// トランスフォームの値をコピー
+	worldTransformAttack_.translation_ = worldTransform_.translation_;
+	worldTransformAttack_.rotation_ = worldTransform_.rotation_;
+
+	WorldTrnasformUpdate(worldTransformAttack_);
 	WorldTrnasformUpdate(worldTransform_);
 
 }
 
+void Player::Update() {
+
+	if (behavierRequest_ != Behavior::kUnkown) {
+	
+		// ふるまいを変更する
+		behavior_ = behavierRequest_;
+		// 各振る舞いごとの初期化を実行
+		switch (behavior_) {
+		case Behavior::kRoot:
+		default:
+			BehaviorRootinitialize();
+			break;
+		case Behavior::kAttack:
+			BehaviorAttackInitialize();
+			break;
+		}
+		// ふるまいクエストをリセット
+		behavierRequest_ = Behavior::kUnkown;
+	}
+
+	// 更新
+	switch (behavior_) {
+	case Behavior::kRoot:
+	//case Behavior::kUnkown:
+	default:
+		BehaviorRootUpdate();
+		break;
+	case Behavior::kAttack:
+		BehaviorAttackUpdate();
+		break;
+	}
+}
+
 void Player::Draw() {
-
-	// DirectXCommonのインスタンスの取得
-	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
-
-	// 3Dモデル描画前処理
-	Model::PreDraw(dxCommon->GetCommandList());
 
 	// 3Dモデルの描画
 	model_->Draw(worldTransform_, *camera_);
+	modelAttack_->Draw(worldTransformAttack_, *camera_);
 
-	// 3Dモデル描画後処理
-	Model::PostDraw();
 }
 
 Vector3 Player::GetWorldPosition() { 

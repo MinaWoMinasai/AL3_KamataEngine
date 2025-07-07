@@ -71,6 +71,7 @@ private:
 
 	// 3Dモデル
 	KamataEngine::Model* model_ = nullptr;
+	KamataEngine::Model* playerAttackModel_ = nullptr;
 	KamataEngine::Model* modelSkydome_ = nullptr;
 	KamataEngine::Model* modelEnemy_ = nullptr;
 	KamataEngine::Model* modelDeathParticle_ = nullptr;

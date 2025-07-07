@@ -47,7 +47,7 @@ public:
 	/// <param name="model">モデル</param>
 	/// <param name="camera">カメラ</param>
 	/// <param name="position">初期座標</param>
-	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
+	void Initialize(KamataEngine::Model* model, KamataEngine::Model* modelAttack, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
 
 	KamataEngine::Vector3 CornerPositon(const KamataEngine::Vector3& center, Corner corner);
 
@@ -80,6 +80,23 @@ public:
 	void CollisionMove(const CollisionMapInfo& info);
 
 	void CollisionUpdate(const CollisionMapInfo& info);
+	
+	/// <summary>
+	/// 通常行動初期化
+	/// </summary>
+	void BehaviorRootinitialize();
+
+	void BehaviorAttackInitialize();
+
+	/// <summary>
+	/// 通常行動更新
+	/// </summary>
+	void BehaviorRootUpdate();
+
+	/// <summary>
+	/// 攻撃行動更新
+	/// </summary>
+	void BehaviorAttackUpdate();
 
 	/// <summary>
 	/// 更新
@@ -115,10 +132,27 @@ private:
 		kLeft,
 	};
 
+	enum class Behavior {
+		kRoot,  // 通常攻撃
+		kAttack, // 攻撃中
+		kUnkown, // 待機中
+	};
+
+	enum class AttackPhase {
+		accumulate, // 溜め
+		rush, // 突進
+		afterglow, // 余韻
+		none,
+	};
+
 	// ワールド変換データ
 	KamataEngine::WorldTransform worldTransform_;
+	KamataEngine::WorldTransform worldTransformAttack_;
+
 	// モデル
 	KamataEngine::Model* model_ = nullptr;
+	KamataEngine::Model* modelAttack_ = nullptr;
+
 	// テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
 	// カメラ
@@ -168,5 +202,28 @@ private:
 	// デスフラグ
 	bool isDead = false;
 	
+	// ダッシュタイマー
+	float attackTimer = 0.0f;
+
+	static inline const float kAttackTimer = 2.0f;
+
+	// ふるまい
+	Behavior behavior_ = Behavior::kRoot;
+
+	// 次のふるまい
+	Behavior behavierRequest_ = Behavior::kUnkown;
+
+	// 攻撃フェーズ
+	AttackPhase attackPhase_ = AttackPhase::accumulate;
+
+	// 溜め動作時間
+	static inline const float kAccumulate = (1.0f / 30.0f);
+	// 突進動作時間
+	static inline const float kRush = (1.0f / 10.0f);
+	// 余韻動作時間
+	static inline const float kAfterGraw = (1.0f / 30.0f);
+	// 攻撃時の速度
+	static inline const float attackVelocity = 0.5f;
+
 };
 

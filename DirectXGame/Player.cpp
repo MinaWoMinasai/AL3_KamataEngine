@@ -559,7 +559,6 @@ void Player::Update() {
 	// 更新
 	switch (behavior_) {
 	case Behavior::kRoot:
-	//case Behavior::kUnkown:
 	default:
 		BehaviorRootUpdate();
 		break;
@@ -613,6 +612,12 @@ AABB Player::GetAABB() {
 
 void Player::OnCollision(const Enemy* enemy) { 
 	(void)enemy;
+
+	// 攻撃中は無敵
+	if (IsAttack()) {
+		return;
+	}
+
 	// デスフラグを立てる
 	isDead = true;
 }

@@ -68,6 +68,11 @@ void GameScene::CheakAllCollisions() {
 
 	// 自キャラと敵弾すべてのあたり判定
 	for (Enemy* enemy : enemies_) {
+
+		if (enemy->IsCollisionDisabled()) {
+			continue;
+		}
+
 		// 敵弾の座標
 		aabb2 = enemy->GetAABB();
 
@@ -254,6 +259,15 @@ void GameScene::Update() {
 
 		// 当たり判定の更新
 		CheakAllCollisions();
+
+		// デスフラグの立った敵を除外
+		enemies_.remove_if([](Enemy* enemy) { 
+			if (enemy->IsDead()) {
+				delete enemy;
+				return true;
+			}
+			return false;
+		});
 
 		break;
 	case GameScene::Phase::kDeath:

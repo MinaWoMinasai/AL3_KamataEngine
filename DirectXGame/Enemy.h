@@ -15,7 +15,13 @@ class Player;
 class Enemy {
 
 public:
-	
+
+	enum class Behavior {
+		kWalk,   // 移動
+		kDeath, // 死亡
+		kUnkown, // 待機中
+	};
+
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
 
 	/// <summary>
@@ -35,6 +41,16 @@ public:
 	/// </summary>
 	void Draw();
 
+	/// <summary>
+	/// 移動更新
+	/// </summary>
+	void BehaviorWalkUpdate();
+
+	/// <summary>
+	/// 死亡更新
+	/// </summary>
+	void BehaviorDeathUpdate();
+
 	// ワールド座標を取得
 	KamataEngine::Vector3 GetWorldPosition();
 	
@@ -43,6 +59,11 @@ public:
 
 	// 衝突応答
 	void OnCollision(const Player* player);
+
+	// デスフラグのgetter
+	bool IsDead() const { return isDead; }
+
+	bool IsCollisionDisabled() const { return isCollisionDisabled_; }
 
 private:
 	
@@ -59,6 +80,23 @@ private:
 	KamataEngine::Vector3 velocity_ = {};
 	// 経過時間
 	float walkTimer_ = 0.0f;
+
+	// デスフラグ
+	bool isDead = false;
+
+	// 判定無効フラグ
+	bool isCollisionDisabled_ = false;
+
+	// 死亡タイマー
+	float deathTimer = 0.0f;
+
+	static inline const float kDeathTimer = 0.6f;
+
+	// ふるまい
+	Behavior behavior_ = Behavior::kWalk;
+
+	// 次のふるまい
+	Behavior behavierRequest_ = Behavior::kUnkown;
 
 	// マップチップによるフィールド
 	MapChipField* mapChipField_ = nullptr;

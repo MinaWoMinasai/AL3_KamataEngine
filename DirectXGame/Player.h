@@ -122,6 +122,9 @@ public:
 	// ワールドトランスフォームを取得
 	KamataEngine::WorldTransform& GetWorldTransform() { return worldTransform_; }
 
+	// 攻撃フラグのgetter
+	bool IsAttack() const { return behavior_ == Behavior::kAttack; }
+
 	// デスフラグのgetter
 	bool IsDead() const { return isDead; }
 

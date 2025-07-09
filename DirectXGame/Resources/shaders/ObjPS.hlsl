@@ -133,7 +133,13 @@ float4 main(VSOutput input) : SV_TARGET {
 			shadecolor.rgb -= atten;
 		}
 	}
+	
+    float4 output = shadecolor * texcolor * color;
+    if (output.a == 0.0f)
+    {
+        discard;
+    }
 
 	// シェーディングによる色で描画
-	return shadecolor * texcolor * color;
+    return output;
 }

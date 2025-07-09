@@ -571,9 +571,20 @@ void Player::Update() {
 
 void Player::Draw() {
 
+	// DirectXCommonのインスタンスの取得
+	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
+
+	// 3Dモデル描画前処理
+	Model::PreDraw(dxCommon->GetCommandList());
+
 	// 3Dモデルの描画
 	model_->Draw(worldTransform_, *camera_);
-	modelAttack_->Draw(worldTransformAttack_, *camera_);
+	if (attackPhase_ == AttackPhase::rush || attackPhase_ == AttackPhase::afterglow) {
+		modelAttack_->Draw(worldTransformAttack_, *camera_);
+	}
+
+	// 3Dモデル描画後処理
+	Model::PostDraw();
 
 }
 

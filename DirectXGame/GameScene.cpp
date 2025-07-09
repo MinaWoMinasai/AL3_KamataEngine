@@ -133,7 +133,7 @@ void GameScene::Initialize() {
 
 	// 3Dモデルの生成
 	model_ = Model::CreateFromOBJ("Player", true);
-	playerAttackModel_ = Model::CreateFromOBJ("block", true);
+	playerAttackModel_ = Model::CreateFromOBJ("playerAttack", true);
 	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
 	modelEnemy_ = Model::CreateFromOBJ("Player", true);
 	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle", true); 
@@ -331,12 +331,6 @@ void GameScene::Update() {
 // 描画
 void GameScene::Draw() {
 
-	// DirectXCommonのインスタンスの取得
-	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
-
-	// 3Dモデル描画前処理
-	Model::PreDraw(dxCommon->GetCommandList());
-
 	// 敵の描画
 	for (Enemy*& enemy : enemies_) {
 		enemy->Draw();
@@ -354,6 +348,12 @@ void GameScene::Draw() {
 		player_->Draw();
 	}
 
+	// DirectXCommonのインスタンスの取得
+	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
+
+	// 3Dモデル描画前処理
+	Model::PreDraw(dxCommon->GetCommandList());
+
 	//	ブロックの描画
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -369,4 +369,5 @@ void GameScene::Draw() {
 
 	// フェードの描画
 	fade_->Draw();
+
 }

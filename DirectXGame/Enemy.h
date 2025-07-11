@@ -3,17 +3,12 @@
 #include "WorldTransformClass.h"
 #include <Windows.h>
 #include <algorithm>
+#include "BaseEnemyState.h"
 
 class Enemy {
 
 public:
 	
-	// 行動フェーズ
-	enum class Phase {
-		Approach, // 接近する
-		Leave, // 離脱する
-	};
-
 	/// <summary>
 	/// 初期化
 	/// </summary>
@@ -25,19 +20,15 @@ public:
 	void Update();
 
 	/// <summary>
-	/// 接近更新
-	/// </summary>
-	void ApproachUpdate();
-
-	/// <summary>
-	/// 離脱更新
-	/// </summary>
-	void LeaveUpdate();
-
-	/// <summary>
 	/// 描画
 	/// </summary>
 	void Draw(KamataEngine::Camera& viewProjection);
+
+	// 状態変更
+	void SetState(std::unique_ptr<BaseEnemyState> newState);
+
+	// 状態クラス用 Getter/Setter
+	KamataEngine::WorldTransform& GetWorldTransform() { return worldTransform_; }
 
 private:
 
@@ -47,11 +38,6 @@ private:
 	KamataEngine::Model* model_ = nullptr;
 	// テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
-
-	// フェーズ
-	Phase phase_ = Phase::Approach;
-
-	// メンバ関数ポインタのテーブル
-	static void (Enemy::*moveUpdate[])();
-
+	// State Pattern
+	std::unique_ptr<BaseEnemyState> state_;
 };

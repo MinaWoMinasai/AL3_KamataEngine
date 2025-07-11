@@ -1,12 +1,7 @@
 #include "Enemy.h"
+#include "ApproachState.h"
 using namespace KamataEngine;
 using namespace MathUtility;
-
-// メンバ関数ポインタテーブルの実体
-void (Enemy::* Enemy::moveUpdate[])() = {
-	&Enemy::ApproachUpdate,
-	&Enemy::LeaveUpdate,
-};
 
 void Enemy::Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Vector3& position) {
 
@@ -14,38 +9,24 @@ void Enemy::Initialize(KamataEngine::Model* model, uint32_t textureHandle, Kamat
 	model_ = model;
 	textureHandle_ = textureHandle;
 	worldTransform_.Initialize();
-
 	worldTransform_.translation_ = position;
-
+	
+	SetState(std::make_unique<ApproachState>());
 }
 
 void Enemy::Update() {
-
-	// メンバ関数ポインタに入っている関数を呼び出す
-	(this->*moveUpdate[static_cast<size_t>(phase_)])();
-
+	
+	if (state_) {
+		state_->Update(*this);
+	}
+	
 	WorldTransformUpdate(worldTransform_);
 }
 
-void Enemy::ApproachUpdate() {
-	
-	// キャラクターの移動速さ
-	const Vector3 approachMove = {0.0f, 0.0f, -0.1f};
-
-	// 移動
-	worldTransform_.translation_ += approachMove;
-	// 既定の位置に到達したら離脱
-	if (worldTransform_.translation_.z < 0.0f) {
-		phase_ = Phase::Leave;
-	}
+void Enemy::Draw(KamataEngine::Camera& viewProjection) {
+	model_->Draw(worldTransform_, viewProjection, textureHandle_); 
 }
 
-void Enemy::LeaveUpdate() {
-
-	// キャラクターの移動速さ
-	const Vector3 leaveMove = {0.1f, 0.1f, -0.1f};
-	// 移動
-	worldTransform_.translation_ += leaveMove;
+void Enemy::SetState(std::unique_ptr<BaseEnemyState> newState) {
+	state_ = std::move(newState); 
 }
-
-void Enemy::Draw(KamataEngine::Camera& viewProjection) { model_->Draw(worldTransform_, viewProjection, textureHandle_); }

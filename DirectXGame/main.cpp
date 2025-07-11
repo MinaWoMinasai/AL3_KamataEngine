@@ -35,7 +35,7 @@ void DrawScene();
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	// エンジンの初期化
-	Initialize(L"LE2A_13_ホリケ_ハヤト_AL3_確認課題_02_15");
+	Initialize(L"LE2A_13_ホリケ_ハヤト_AL3_確認課題_02_16");
 
 	// DirectXCommonのインスタンスの取得
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();

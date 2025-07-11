@@ -587,7 +587,7 @@ void Player::Draw() {
 
 }
 
-Vector3 Player::GetWorldPosition() { 
+Vector3 Player::GetWorldPosition(){ 
 	
 	// ワールド座標を入れる変数
 	Vector3 worldPos;

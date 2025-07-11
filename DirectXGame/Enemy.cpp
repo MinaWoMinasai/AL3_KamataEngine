@@ -1,6 +1,7 @@
 #include "Enemy.h"
 #include "cmath"
 #include "Player.h"
+#include "GameScene.h"
 using namespace KamataEngine;
 using namespace MathUtility;
 
@@ -22,6 +23,7 @@ void Enemy::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera,
 	worldTransform_.rotation_.y = std::numbers::pi_v<float> * 2.0f;
 	velocity_ = {-kWalkSpeed, 0, 0};
 	walkTimer_ = 0.0f;
+
 }
 
 void Enemy::Update() {
@@ -135,8 +137,7 @@ AABB Enemy::GetAABB() {
 	return aabb;
 }
 
-void Enemy::OnCollision(const Player* player) { 
-	(void)player;
+void Enemy::OnCollision(const Player* player, GameScene* gameScene) { 
 
 	if (behavior_ == Behavior::kDeath) {
 		// 敵がやられているなら何もしない
@@ -149,6 +150,10 @@ void Enemy::OnCollision(const Player* player) {
 		behavierRequest_ = Behavior::kDeath;
 		// コリジョン無効フラグを立てる
 		isCollisionDisabled_ = true;
+
+		// 敵と自キャラの中間位置にエフェクトを生成
+		Vector3 effectPos = (worldTransform_.translation_ + player->GetWorldTransform().translation_) / 2.0f;
+		gameScene->CreateHitEffect(effectPos);
 	}
 
 }

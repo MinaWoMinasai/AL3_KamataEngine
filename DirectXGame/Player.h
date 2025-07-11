@@ -120,7 +120,7 @@ public:
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
 
 	// ワールドトランスフォームを取得
-	KamataEngine::WorldTransform& GetWorldTransform() { return worldTransform_; }
+	const KamataEngine::WorldTransform& GetWorldTransform() const { return worldTransform_; }
 
 	// 攻撃フラグのgetter
 	bool IsAttack() const { return behavior_ == Behavior::kAttack; }

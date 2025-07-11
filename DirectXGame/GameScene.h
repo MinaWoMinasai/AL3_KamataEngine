@@ -10,6 +10,7 @@
 #include "HitBox.h"
 #include "DeathParticles.h"
 #include "Fade.h"
+#include "HitEffect.h"
 
 // ゲームシーン
 class GameScene {
@@ -62,6 +63,8 @@ public:
 	/// </summary>
 	void Draw();
 
+	void CreateHitEffect(KamataEngine::Vector3 position);
+
 	// 終了フラグのゲッター
 	bool IsFinished() const { return finished_; }
 
@@ -76,21 +79,19 @@ private:
 	KamataEngine::Model* modelEnemy_ = nullptr;
 	KamataEngine::Model* modelDeathParticle_ = nullptr;
 	KamataEngine::Model* modelTitleText_ = nullptr;
+	KamataEngine::Model* modelHitEffect_ = nullptr;
+	KamataEngine::Model* modelBlock_ = nullptr;
 
 	// カメラ
 	KamataEngine::Camera camera_;
 
+	// インスタンス
 	Player* player_ = nullptr;
 	std::list<Enemy*> enemies_;
-	DeathParticles* deathParticles_ = nullptr;
-	
-	// 敵の数
 	const int32_t kEnemyCount = 3;
-
+	DeathParticles* deathParticles_ = nullptr;
 	Skydome* skydome_ = nullptr; 
-
-	// ブロックの3Dモデル
-	KamataEngine::Model* modelBlock_ = nullptr;
+	std::list<HitEffect*> hitEffects_;
 
 	// ブロック用のワールドトランスフォーム
 	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;

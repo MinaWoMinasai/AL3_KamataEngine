@@ -11,6 +11,7 @@
 #include "HitBox.h"
 
 class Player;
+class GameScene;
 
 class Enemy {
 
@@ -58,7 +59,7 @@ public:
 	AABB GetAABB();
 
 	// 衝突応答
-	void OnCollision(const Player* player);
+	void OnCollision(const Player* player, GameScene* gameScene);
 
 	// デスフラグのgetter
 	bool IsDead() const { return isDead; }
@@ -113,4 +114,5 @@ private:
 	static inline const float kWalkMotionAngleEnd = std::numbers::pi_v<float>; 
 	// アニメーションの周期になる時間[秒]
 	static inline const float kWalkMotionTime = 2.0f;
+
 };

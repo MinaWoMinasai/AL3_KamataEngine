@@ -15,6 +15,11 @@ GameScene::~GameScene() {
 		delete enemy;
 	}
 	enemies_.clear();
+	for (HitEffect*& hitEffect : hitEffects_) {
+		delete hitEffect;
+	}
+	hitEffects_.clear();
+
 	delete modelBlock_;
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -22,6 +27,7 @@ GameScene::~GameScene() {
 		}
 	}
 	worldTransformBlocks_.clear();
+	delete modelHitEffect_;
 	delete debugCamera_;
 	delete mapChipField_;
 	delete cameraContoroller_;
@@ -81,7 +87,7 @@ void GameScene::CheakAllCollisions() {
 			// 自キャラの衝突時コールバックを呼び出す
 			player_->OnCollision(enemy);
 			// 敵キャラの衝突時コールバックを呼び出す
-			enemy->OnCollision(player_);
+			enemy->OnCollision(player_, this);
 		}
 	}
 }
@@ -143,6 +149,9 @@ void GameScene::Initialize() {
 	modelEnemy_ = Model::CreateFromOBJ("Player", true);
 	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle", true); 
 	modelBlock_ = Model::CreateFromOBJ("block", true);
+	modelHitEffect_ = Model::CreateFromOBJ("hitEffect", true);
+	HitEffect::SetModel(modelHitEffect_);
+	HitEffect::SetCamera(&camera_);
 
 	// カメラの初期化
 	camera_.farZ = 1000.0f;
@@ -167,7 +176,7 @@ void GameScene::Initialize() {
 	// 敵の生成と初期化
 	for (int32_t i = 0; i < kEnemyCount; i++) {
 		Enemy* newEnemy = new Enemy();
-		Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(25, 13 + i * 2);
+		Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(25 + i * 2, 13);
 		newEnemy->Initialize(modelEnemy_, &camera_, enemyPosition);
 		enemies_.push_back(newEnemy);
 	}
@@ -215,6 +224,11 @@ void GameScene::Update() {
 		// 敵の更新
 		for (Enemy*& enemy : enemies_) {
 			enemy->Update();
+		}
+
+		// ヒットエフェクトの更新
+		for (HitEffect*& hitEffect : hitEffects_) {
+			hitEffect->Update();
 		}
 
 		// カメラコントローラの更新
@@ -269,6 +283,15 @@ void GameScene::Update() {
 			return false;
 		});
 
+		// デスフラグの立ったエフェクトを除外
+		hitEffects_.remove_if([](HitEffect* hitEffect) {
+			if (hitEffect->IsDead()) {
+				delete hitEffect;
+				return true;
+			}
+			return false;
+		});
+
 		break;
 	case GameScene::Phase::kDeath:
 	case GameScene::Phase::kFadeOut:
@@ -288,7 +311,18 @@ void GameScene::Update() {
 		for (Enemy*& enemy : enemies_) {
 			enemy->Update();
 		}
+		for (HitEffect*& hitEffect : hitEffects_) {
+			hitEffect->Update();
+		}
 
+		// デスフラグの立ったエフェクトを除外
+		hitEffects_.remove_if([](HitEffect* hitEffect) {
+			if (hitEffect->IsDead()) {
+				delete hitEffect;
+				return true;
+			}
+			return false;
+		});
 		// デスパーティクルの更新
 		deathParticles_->Update();
 
@@ -345,22 +379,8 @@ void GameScene::Update() {
 // 描画
 void GameScene::Draw() {
 
-	// 敵の描画
-	for (Enemy*& enemy : enemies_) {
-		enemy->Draw();
-	}
-	
 	// 天球の描画
 	skydome_->Draw();
-
-	// プレイヤーの描画
-	if (player_->IsDead()) {
-		// デスパーティクルを描画
-		deathParticles_->Draw();
-	} else {
-		// プレイヤーの描画
-		player_->Draw();
-	}
 
 	// DirectXCommonのインスタンスの取得
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
@@ -373,7 +393,7 @@ void GameScene::Draw() {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
 			if (!worldTransformBlock)
 				continue;
-	
+
 			modelBlock_->Draw(*worldTransformBlock, camera_);
 		}
 	}
@@ -381,7 +401,30 @@ void GameScene::Draw() {
 	// 3Dモデル描画後処理
 	Model::PostDraw();
 
+	for (HitEffect*& hitEffect : hitEffects_) {
+		hitEffect->Draw();
+	}
+
+	// 敵の描画
+	for (Enemy*& enemy : enemies_) {
+		enemy->Draw();
+	}
+
+	// プレイヤーの描画
+	if (player_->IsDead()) {
+		// デスパーティクルを描画
+		deathParticles_->Draw();
+	} else {
+		// プレイヤーの描画
+		player_->Draw();
+	}
+
 	// フェードの描画
 	fade_->Draw();
 
+}
+
+void GameScene::CreateHitEffect(KamataEngine::Vector3 position) { 
+	HitEffect* newHitEffect = HitEffect::Create(position);
+	hitEffects_.push_back(newHitEffect);
 }

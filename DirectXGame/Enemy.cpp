@@ -2,6 +2,12 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
+// メンバ関数ポインタテーブルの実体
+void (Enemy::* Enemy::moveUpdate[])() = {
+	&Enemy::ApproachUpdate,
+	&Enemy::LeaveUpdate,
+};
+
 void Enemy::Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Vector3& position) {
 
 	assert(model);
@@ -10,21 +16,13 @@ void Enemy::Initialize(KamataEngine::Model* model, uint32_t textureHandle, Kamat
 	worldTransform_.Initialize();
 
 	worldTransform_.translation_ = position;
+
 }
 
 void Enemy::Update() {
 
-	switch (phase_) {
-	case Enemy::Phase::Approach:
-	default:
-
-		ApproachUpdate();
-		break;
-	case Enemy::Phase::Leave:
-
-		LeaveUpdate();
-		break;
-	}
+	// メンバ関数ポインタに入っている関数を呼び出す
+	(this->*moveUpdate[static_cast<size_t>(phase_)])();
 
 	WorldTransformUpdate(worldTransform_);
 }

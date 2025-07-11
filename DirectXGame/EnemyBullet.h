@@ -4,10 +4,9 @@
 #include <Windows.h>
 #include <algorithm>
 
-class PlayerBullet {
+class EnemyBullet {
 
 public:
-
 	/// <summary>
 	/// 初期化
 	/// </summary>
@@ -26,7 +25,6 @@ public:
 	bool IsDead() const { return isDead_; }
 
 private:
-
 	KamataEngine::Model* model_;
 	// テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
@@ -43,5 +41,4 @@ private:
 	int32_t deathTimer_ = kLifeTime;
 	// デスフラグ
 	bool isDead_ = false;
-
 };

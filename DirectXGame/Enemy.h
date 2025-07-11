@@ -4,11 +4,22 @@
 #include <Windows.h>
 #include <algorithm>
 #include "BaseEnemyState.h"
+#include "EnemyBullet.h"
 
 class Enemy {
 
 public:
 	
+	/// <summary>
+	/// デストラクタ
+	/// </summary>
+	~Enemy();
+
+	/// <summary>
+	/// 弾発射
+	/// </summary>
+	void Fire();
+
 	/// <summary>
 	/// 初期化
 	/// </summary>
@@ -29,6 +40,13 @@ public:
 
 	// 状態クラス用 Getter/Setter
 	KamataEngine::WorldTransform& GetWorldTransform() { return worldTransform_; }
+	int32_t& GetFireIntervalTimer() { return fireIntervalTimer; } 
+	
+	//----------------------
+	// 定数
+	
+	// 発射間隔
+	static inline const int32_t kFireInterval = 60;
 
 private:
 
@@ -40,4 +58,11 @@ private:
 	uint32_t textureHandle_ = 0u;
 	// State Pattern
 	std::unique_ptr<BaseEnemyState> state_;
+
+	// 弾
+	std::list<EnemyBullet*> bullets_;
+
+	// 発射タイマー
+	int32_t fireIntervalTimer = 0;
+
 };

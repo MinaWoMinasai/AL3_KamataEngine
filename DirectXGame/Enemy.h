@@ -5,6 +5,7 @@
 #include <algorithm>
 #include "BaseEnemyState.h"
 #include "EnemyBullet.h"
+#include "TimeCall.h"
 
 class Enemy {
 
@@ -19,6 +20,11 @@ public:
 	/// 弾発射
 	/// </summary>
 	void Fire();
+
+	/// <summary>
+	/// 弾を発射し、タイマーをリセットするコールバック関数
+	/// </summary>
+	void FireAndReset();
 
 	/// <summary>
 	/// 初期化
@@ -41,7 +47,10 @@ public:
 	// 状態クラス用 Getter/Setter
 	KamataEngine::WorldTransform& GetWorldTransform() { return worldTransform_; }
 	int32_t& GetFireIntervalTimer() { return fireIntervalTimer; } 
-	
+
+	// 次元発動のリストのゲッター
+	std::list<TimeCall*>& GetTimeCalls() { return timeCalls_; }
+
 	//----------------------
 	// 定数
 	
@@ -64,5 +73,8 @@ private:
 
 	// 発射タイマー
 	int32_t fireIntervalTimer = 0;
+
+	// 時限発動のリスト
+	std::list<TimeCall*> timeCalls_;
 
 };

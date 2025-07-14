@@ -36,12 +36,14 @@ void Enemy::Fire() {
 }
 
 void Enemy::FireAndReset() {
+	
 	// 弾を発射する
 	Fire();
 
 	// 発射タイマーをリセット
 	timeCalls_.push_back(
 		new TimeCall(std::bind(&Enemy::FireAndReset, this), kFireInterval));
+
 }
 
 void Enemy::Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Vector3& position) {
@@ -62,13 +64,15 @@ void Enemy::Initialize(KamataEngine::Model* model, uint32_t textureHandle, Kamat
 
 void Enemy::Update() {
 
-	WorldTransformUpdate(worldTransform_);
 	if (state_) {
 		state_->Update(*this);
 	}
 	
+	for (TimeCall* timeCall : timeCalls_) {
+		timeCall->Update();
+	}
+
 	for (EnemyBullet* bullet : bullets_) {
-	
 		bullet->Update();
 	}
 
@@ -81,9 +85,7 @@ void Enemy::Update() {
 		return false;
 	});
 
-	for (TimeCall* timeCall : timeCalls_) {
-		timeCall->Update();
-	}
+	WorldTransformUpdate(worldTransform_);
 }
 
 void Enemy::Draw(KamataEngine::Camera& viewProjection) {

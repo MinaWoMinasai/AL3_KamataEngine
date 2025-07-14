@@ -10,6 +10,7 @@ void TimeCall::Update() {
 	if (isFinished_) {
 		return;
 	}
+
 	time_--;
 	if (time_ <= 0) {
 	

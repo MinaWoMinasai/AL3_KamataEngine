@@ -14,6 +14,21 @@ GameScene::~GameScene() {
 
 void GameScene::CheckAllCollisions() {
 	
+	// コライダー
+	std::list<Collider*> colliders_;
+	// コライダーをリストに登録
+	colliders_.push_back(player_);
+	colliders_.push_back(enemy_);
+	for (PlayerBullet* bullet : player_->GetBullets()) {
+		colliders_.push_back(bullet);
+	}
+	for (EnemyBullet* bullet : enemy_->GetBullets()){
+		colliders_.push_back(bullet);
+	}
+
+	// リスト内のペアの総当たり
+	std::list<Collider*>::iterator itrA = colliders_.begin();
+
 	// 自弾リストの取得
 	const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
 	// 敵弾リストの取得

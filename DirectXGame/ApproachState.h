@@ -7,4 +7,7 @@ public:
 	void Initialize(Enemy& enemy) override;
 
 	void Update(Enemy& enemy) override;
+
+private:
+	uint32_t time_ = 60;
 };

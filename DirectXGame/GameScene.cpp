@@ -33,10 +33,12 @@ void GameScene::Initialize() {
 
 	// 敵キャラの生成
 	enemy_ = new Enemy();
+	// 敵キャラに自キャラのアドレスを渡す
+	enemy_->SetPlayer(player_);
 	// 敵キャラの初期化
 	Vector3 enemyPosition = {0.0f, 5.0f, 20.0f};
 	enemy_->Initialize(enemyModel_, enemyTextureHandle_, enemyPosition);
-
+	
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
 	// シングルトンインスタンス

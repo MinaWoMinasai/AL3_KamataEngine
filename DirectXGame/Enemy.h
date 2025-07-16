@@ -1,16 +1,17 @@
 #pragma once
+#include "BaseEnemyState.h"
+#include "EnemyBullet.h"
 #include "KamataEngine.h"
+#include "TimeCall.h"
 #include "WorldTransformClass.h"
 #include <Windows.h>
 #include <algorithm>
-#include "BaseEnemyState.h"
-#include "EnemyBullet.h"
-#include "TimeCall.h"
+
+class Player;
 
 class Enemy {
 
 public:
-	
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
@@ -46,19 +47,22 @@ public:
 
 	// 状態クラス用 Getter/Setter
 	KamataEngine::WorldTransform& GetWorldTransform() { return worldTransform_; }
-	int32_t& GetFireIntervalTimer() { return fireIntervalTimer; } 
+	int32_t& GetFireIntervalTimer() { return fireIntervalTimer; }
 
+	KamataEngine::Vector3 GetWorldPosition() const;
 	// 次元発動のリストのゲッター
 	std::list<TimeCall*>& GetTimeCalls() { return timeCalls_; }
 
+	// 自キャラのセッター
+	void SetPlayer(Player* player) {player_ = player;}
+
 	//----------------------
 	// 定数
-	
+
 	// 発射間隔
 	static inline const int32_t kFireInterval = 60;
 
 private:
-
 	// ワールド変換データ
 	KamataEngine::WorldTransform worldTransform_;
 	// モデル
@@ -77,4 +81,9 @@ private:
 	// 時限発動のリスト
 	std::list<TimeCall*> timeCalls_;
 
+	// 自キャラ
+	Player* player_ = nullptr;
+
+	// 最初の弾までの時間
+	uint32_t time_ = 60;
 };

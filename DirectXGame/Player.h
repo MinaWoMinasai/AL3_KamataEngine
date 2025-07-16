@@ -47,6 +47,8 @@ public:
 	/// </summary>
 	void Draw(KamataEngine::Camera& viewProjection);
 
+	KamataEngine::Vector3 GetWorldPosition() const;
+
 private:
 	// ワールド変換データ
 	KamataEngine::WorldTransform worldTransform_;

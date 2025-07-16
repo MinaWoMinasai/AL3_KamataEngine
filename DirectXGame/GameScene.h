@@ -20,6 +20,11 @@ public:
 	~GameScene();
 
 	/// <summary>
+	/// 衝突判定と応答
+	/// </summary>
+	void CheckAllCollisions();
+
+	/// <summary>
 	/// 初期化
 	/// </summary>
 	void Initialize();
@@ -61,4 +66,5 @@ private:
 
 	// キーボード入力
 	KamataEngine::Input* input_ = nullptr;
+
 };

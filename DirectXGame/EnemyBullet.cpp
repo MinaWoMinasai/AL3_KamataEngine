@@ -3,6 +3,11 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
+void EnemyBullet::OnCollision() {
+	// デスフラグを立てる
+	isDead_ = true;
+}
+
 void EnemyBullet::Initialize(KamataEngine::Model* model, const KamataEngine::Vector3& position, const KamataEngine::Vector3& velocity) {
 
 	// Nullポインタチェック
@@ -16,9 +21,6 @@ void EnemyBullet::Initialize(KamataEngine::Model* model, const KamataEngine::Vec
 	worldTransform_.translation_ = position;
 	velocity_ = velocity;
 
-	// z方向に伸びた形状
-	worldTransform_.scale_ = {0.5f, 0.5f, 3.0f};
-
 	// Y軸回り角度(Θy)
 	worldTransform_.rotation_.y = std::atan2(velocity_.x, velocity_.z);
 	// X軸回り角度(0x)
@@ -27,19 +29,6 @@ void EnemyBullet::Initialize(KamataEngine::Model* model, const KamataEngine::Vec
 
 void EnemyBullet::Update() {
 
-	// 敵キャラから自キャラへのベクトルを計算
-	Vector3 toPlayer = player_->GetWorldPosition() - GetWorldPosition();
-
-	// ベクトルを正規化する
-	Normalize(toPlayer);
-	Normalize(velocity_);
-	// 球面補間
-	velocity_ = Slerp(velocity_, toPlayer, 0.1f * kBulletSpeed);
-
-	// 進行方向に見た目を合わせる
-	worldTransform_.rotation_.y = std::atan2(velocity_.x, velocity_.z);
-	worldTransform_.rotation_.x = std::atan2(-velocity_.y, std::sqrt(velocity_.x * velocity_.x + velocity_.z * velocity_.z));
-	
 	// 座標を移動させる
 	worldTransform_.translation_ += velocity_;
 

@@ -7,6 +7,10 @@
 class PlayerBullet {
 
 public:
+	/// <summary>
+	/// 衝突判定
+	/// </summary>
+	void OnCollision();
 
 	/// <summary>
 	/// 初期化
@@ -24,6 +28,10 @@ public:
 	void Draw(const KamataEngine::Camera& camera);
 
 	bool IsDead() const { return isDead_; }
+	KamataEngine::Vector3 GetWorldPosition() const;
+
+	// 半径
+	static inline const float kRadius = 1.0f;
 
 private:
 

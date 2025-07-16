@@ -5,7 +5,6 @@
 #include <algorithm>
 #include "PlayerBullet.h"
 #include <list>
-//#include "Calculation.h"
 
 /// <summary>
 /// 自キャラ
@@ -30,6 +29,11 @@ public:
 	void Attack();
 
 	/// <summary>
+	/// 衝突判定
+	/// </summary>
+	void OnCollision();
+
+	/// <summary>
 	/// 初期化
 	/// </summary>
 	/// <param name="model">モデル</param>
@@ -48,6 +52,12 @@ public:
 	void Draw(KamataEngine::Camera& viewProjection);
 
 	KamataEngine::Vector3 GetWorldPosition() const;
+
+	// 弾の取得
+	const std::list<PlayerBullet*>& GetBullets() const { return bullets_; }
+
+	// 半径
+	static inline const float kRadius = 1.0f;
 
 private:
 	// ワールド変換データ

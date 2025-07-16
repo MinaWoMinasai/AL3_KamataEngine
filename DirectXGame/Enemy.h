@@ -28,6 +28,11 @@ public:
 	void FireAndReset();
 
 	/// <summary>
+	/// 衝突判定
+	/// </summary>
+	void OnCollision();
+
+	/// <summary>
 	/// 初期化
 	/// </summary>
 	void Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Vector3& position);
@@ -56,11 +61,17 @@ public:
 	// 自キャラのセッター
 	void SetPlayer(Player* player) {player_ = player;}
 
+	// 弾の取得
+	const std::list<EnemyBullet*>& GetBullets() const { return bullets_; }
+
 	//----------------------
 	// 定数
 
 	// 発射間隔
 	static inline const int32_t kFireInterval = 60;
+
+	// 半径
+	static inline const float kRadius = 1.0f;
 
 private:
 	// ワールド変換データ

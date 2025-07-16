@@ -39,6 +39,8 @@ void Player::Attack() {
 	}
 }
 
+void Player::OnCollision() {}
+
 void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle) {
 
 	assert(model);

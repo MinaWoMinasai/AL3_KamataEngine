@@ -11,6 +11,11 @@ class EnemyBullet {
 
 public:
 	/// <summary>
+	/// 衝突判定
+	/// </summary>
+	void OnCollision();
+
+	/// <summary>
 	/// 初期化
 	/// </summary>
 	void Initialize(KamataEngine::Model* model, const KamataEngine::Vector3& position, const KamataEngine::Vector3& velocity);
@@ -29,6 +34,9 @@ public:
 
 	KamataEngine::Vector3 GetWorldPosition() const;
 	void SetPlayer(Player* player) { player_ = player; }
+
+	// 半径
+	static inline const float kRadius = 1.0f;
 
 private:
 	KamataEngine::Model* model_;

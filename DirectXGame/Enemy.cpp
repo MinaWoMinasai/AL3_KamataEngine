@@ -58,6 +58,8 @@ void Enemy::FireAndReset() {
 	timeCalls_.push_back(new TimeCall(std::bind(&Enemy::FireAndReset, this), kFireInterval));
 }
 
+void Enemy::OnCollision() {}
+
 void Enemy::Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Vector3& position) {
 
 	assert(model);
@@ -87,6 +89,15 @@ void Enemy::Update() {
 	for (EnemyBullet* bullet : bullets_) {
 		bullet->Update();
 	}
+
+	// デスフラグが立った球を削除
+	bullets_.remove_if([](EnemyBullet* bullet) {
+		if (bullet->IsDead()) {
+			delete bullet;
+			return true;
+		}
+		return false;
+	});
 
 	// 終了したイベントを削除
 	timeCalls_.remove_if([](TimeCall* timeCall) {

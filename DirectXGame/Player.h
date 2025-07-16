@@ -5,11 +5,12 @@
 #include <algorithm>
 #include "PlayerBullet.h"
 #include <list>
+#include "Collider.h"
 
 /// <summary>
 /// 自キャラ
 /// </summary>
-class Player {
+class Player : public Collider{
 
 public:
 
@@ -31,7 +32,7 @@ public:
 	/// <summary>
 	/// 衝突判定
 	/// </summary>
-	void OnCollision();
+	void OnCollision() override;
 
 	/// <summary>
 	/// 初期化
@@ -51,7 +52,7 @@ public:
 	/// </summary>
 	void Draw(KamataEngine::Camera& viewProjection);
 
-	KamataEngine::Vector3 GetWorldPosition() const;
+	KamataEngine::Vector3 GetWorldPosition() const override;
 
 	// 弾の取得
 	const std::list<PlayerBullet*>& GetBullets() const { return bullets_; }

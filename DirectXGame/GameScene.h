@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include "Player.h"
 #include "Enemy.h"
+#include "Collider.h"
 
 // ゲームシーン
 class GameScene {
@@ -23,6 +24,13 @@ public:
 	/// 衝突判定と応答
 	/// </summary>
 	void CheckAllCollisions();
+
+	/// <summary>
+	/// コライダー二つの衝突判定と応答
+	/// </summary>
+	/// <param name="colliderA">コライダーA</param>
+	/// <param name="colliderB">コライダーB</param>
+	void CheckCollisionPair(Collider* colliderA, Collider* colliderB);
 
 	/// <summary>
 	/// 初期化

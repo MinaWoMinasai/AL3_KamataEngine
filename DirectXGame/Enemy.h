@@ -6,10 +6,11 @@
 #include "WorldTransformClass.h"
 #include <Windows.h>
 #include <algorithm>
+#include "Collider.h"
 
 class Player;
 
-class Enemy {
+class Enemy : public Collider{
 
 public:
 	/// <summary>
@@ -30,7 +31,7 @@ public:
 	/// <summary>
 	/// 衝突判定
 	/// </summary>
-	void OnCollision();
+	void OnCollision() override;
 
 	/// <summary>
 	/// 初期化
@@ -54,7 +55,7 @@ public:
 	KamataEngine::WorldTransform& GetWorldTransform() { return worldTransform_; }
 	int32_t& GetFireIntervalTimer() { return fireIntervalTimer; }
 
-	KamataEngine::Vector3 GetWorldPosition() const;
+	KamataEngine::Vector3 GetWorldPosition() const override;
 	// 次元発動のリストのゲッター
 	std::list<TimeCall*>& GetTimeCalls() { return timeCalls_; }
 

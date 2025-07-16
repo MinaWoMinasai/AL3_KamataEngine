@@ -4,16 +4,17 @@
 #include <Windows.h>
 #include <algorithm>
 #include "Calculation.h"
+#include "Collider.h"
 
 class Player;
 
-class EnemyBullet {
+class EnemyBullet : public Collider{
 
 public:
 	/// <summary>
 	/// 衝突判定
 	/// </summary>
-	void OnCollision();
+	void OnCollision() override;
 
 	/// <summary>
 	/// 初期化
@@ -32,7 +33,7 @@ public:
 
 	bool IsDead() const { return isDead_; }
 
-	KamataEngine::Vector3 GetWorldPosition() const;
+	KamataEngine::Vector3 GetWorldPosition() const override;
 	void SetPlayer(Player* player) { player_ = player; }
 
 	// 半径

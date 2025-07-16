@@ -3,14 +3,15 @@
 #include "WorldTransformClass.h"
 #include <Windows.h>
 #include <algorithm>
+#include "Collider.h"
 
-class PlayerBullet {
+class PlayerBullet : public Collider {
 
 public:
 	/// <summary>
 	/// 衝突判定
 	/// </summary>
-	void OnCollision();
+	void OnCollision() override;
 
 	/// <summary>
 	/// 初期化
@@ -28,7 +29,7 @@ public:
 	void Draw(const KamataEngine::Camera& camera);
 
 	bool IsDead() const { return isDead_; }
-	KamataEngine::Vector3 GetWorldPosition() const;
+	KamataEngine::Vector3 GetWorldPosition() const override;
 
 	// 半径
 	static inline const float kRadius = 1.0f;

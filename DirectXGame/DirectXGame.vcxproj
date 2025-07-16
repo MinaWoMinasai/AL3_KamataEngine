@@ -109,6 +109,7 @@
     <ClCompile Include="ApproachState.cpp" />
     <ClCompile Include="BaseEnemyState.cpp" />
     <ClCompile Include="Calculation.cpp" />
+    <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="EnemyBullet.cpp" />
     <ClCompile Include="GameScene.cpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="ApproachState.h" />
     <ClInclude Include="BaseEnemyState.h" />
     <ClInclude Include="Calculation.h" />
+    <ClInclude Include="Collider.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="EnemyBullet.h" />
     <ClInclude Include="GameScene.h" />

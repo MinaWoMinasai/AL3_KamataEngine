@@ -13,72 +13,53 @@ GameScene::~GameScene() {
 }
 
 void GameScene::CheckAllCollisions() {
-	// 判定対象AとBの座標
-	Vector3 posA, posB;
-
+	
 	// 自弾リストの取得
 	const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
 	// 敵弾リストの取得
 	const std::list<EnemyBullet*>& enemyBullets = enemy_->GetBullets();
 
 #pragma region 自キャラと敵弾の衝突判定
-	posA = player_->GetWorldPosition();
 	// 自キャラと敵弾すべてのあたり判定
-	for (EnemyBullet* bullet : enemyBullets) {
-		// 敵弾の座標
-		posB = bullet->GetWorldPosition();
-		// AとBの距離を求める
-		float distance = Length(posA - posB);
-		// 球と球のあたり判定
-		if (distance < player_->kRadius + bullet->kRadius) {
-			// 自キャラのデスフラグを立てる
-			player_->OnCollision();
-			// 衝突したら敵弾のデスフラグを立てる
-			bullet->OnCollision();
-		}
+	for (EnemyBullet* enemyBullet : enemyBullets) {
+		// ペアの衝突判定
+		CheckCollisionPair(player_, enemyBullet);
 	}
+
 #pragma endregion
 
 #pragma region 敵キャラと自弾の衝突判定
-	posA = enemy_->GetWorldPosition();
 	// 敵キャラと自弾すべてのあたり判定
-	for (PlayerBullet* bullet : playerBullets) {
-		// 敵弾の座標
-		posB = bullet->GetWorldPosition();
-		// AとBの距離を求める
-		float distance = Length(posA - posB);
-		// 球と球のあたり判定
-		if (distance < enemy_->kRadius + bullet->kRadius) {
-			// 敵キャラのデスフラグを立てる
-			enemy_->OnCollision();
-			// 衝突したら自弾のデスフラグを立てる
-			bullet->OnCollision();
-		}
+	for (PlayerBullet* playerBullet : playerBullets) {
+		// ペアの衝突判定
+		CheckCollisionPair(enemy_, playerBullet);	
 	}
 #pragma endregion
 
 #pragma region 自弾と敵弾のあたり判定
-	
-	for (PlayerBullet* playerBullet : playerBullets) {
-		// 自弾の座標
-		posA = playerBullet->GetWorldPosition();
 
+	for (PlayerBullet* playerBullet : playerBullets) {
 		for (EnemyBullet* enemyBullet : enemyBullets) {
-			// 敵弾の座標
-			posB = enemyBullet->GetWorldPosition();
-			// AとBの距離を求める
-			float distance = Length(posA - posB);
-			// 球と球のあたり判定
-			if (distance < playerBullet->kRadius + enemyBullet->kRadius) {
-				// 自弾のデスフラグを立てる
-				playerBullet->OnCollision();
-				// 敵弾のデスフラグを立てる
-				enemyBullet->OnCollision();
-			}
+			// ペアの衝突判定
+			CheckCollisionPair(playerBullet, enemyBullet);
 		}
 	}
 
 #pragma endregion
+}
+
+void GameScene::CheckCollisionPair(Collider* colliderA, Collider* colliderB) {
+	Vector3 posA = colliderA->GetWorldPosition();
+	Vector3 posB = colliderB->GetWorldPosition();
+
+	float distance = Length(posA - posB);
+	// 球と球のあたり判定
+	if (distance < colliderA->GetRadius() + colliderB->GetRadius()) {
+		// 自弾のデスフラグを立てる
+		colliderA->OnCollision();
+		// 敵弾のデスフラグを立てる
+		colliderB->OnCollision();
+	}
 }
 
 void GameScene::Initialize() {

@@ -36,7 +36,7 @@ void GameScene::Initialize() {
 	// 敵キャラに自キャラのアドレスを渡す
 	enemy_->SetPlayer(player_);
 	// 敵キャラの初期化
-	Vector3 enemyPosition = {0.0f, 5.0f, 20.0f};
+	Vector3 enemyPosition = {5.0f, 5.0f, 30.0f};
 	enemy_->Initialize(enemyModel_, enemyTextureHandle_, enemyPosition);
 	
 	// デバッグカメラの生成

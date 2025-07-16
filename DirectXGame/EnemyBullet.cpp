@@ -14,6 +14,14 @@ void EnemyBullet::Initialize(KamataEngine::Model* model, const KamataEngine::Vec
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
 	velocity_ = velocity;
+
+	// z方向に伸びた形状
+	worldTransform_.scale_ = {0.5f, 0.5f, 3.0f};
+
+	// Y軸回り角度(Θy)
+	worldTransform_.rotation_.y = std::atan2(velocity_.x, velocity_.z);
+	// X軸回り角度(0x)
+	worldTransform_.rotation_.x = std::atan2(-velocity_.y, std::sqrt(velocity_.x * velocity_.x + velocity_.z * velocity_.z));
 }
 
 void EnemyBullet::Update() {

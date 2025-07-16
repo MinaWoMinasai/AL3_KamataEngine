@@ -1,4 +1,5 @@
 #include "EnemyBullet.h"
+#include "Player.h"
 using namespace KamataEngine;
 using namespace MathUtility;
 
@@ -26,6 +27,19 @@ void EnemyBullet::Initialize(KamataEngine::Model* model, const KamataEngine::Vec
 
 void EnemyBullet::Update() {
 
+	// 敵キャラから自キャラへのベクトルを計算
+	Vector3 toPlayer = player_->GetWorldPosition() - GetWorldPosition();
+
+	// ベクトルを正規化する
+	Normalize(toPlayer);
+	Normalize(velocity_);
+	// 球面補間
+	velocity_ = Slerp(velocity_, toPlayer, 0.1f * kBulletSpeed);
+
+	// 進行方向に見た目を合わせる
+	worldTransform_.rotation_.y = std::atan2(velocity_.x, velocity_.z);
+	worldTransform_.rotation_.x = std::atan2(-velocity_.y, std::sqrt(velocity_.x * velocity_.x + velocity_.z * velocity_.z));
+	
 	// 座標を移動させる
 	worldTransform_.translation_ += velocity_;
 
@@ -38,5 +52,15 @@ void EnemyBullet::Update() {
 }
 
 void EnemyBullet::Draw(const Camera& camera) { 
-	model_->Draw(worldTransform_, camera, textureHandle_);
+	model_->Draw(worldTransform_, camera, textureHandle_); }
+
+KamataEngine::Vector3 EnemyBullet::GetWorldPosition() const { 
+	// ワールド座標を入れる
+	Vector3 worldPos;
+	// ワールド行列の平行移動成分を取得(ワールド座標)
+	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1];
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
+
+	return worldPos;
 }

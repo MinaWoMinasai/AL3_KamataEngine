@@ -3,6 +3,9 @@
 #include "WorldTransformClass.h"
 #include <Windows.h>
 #include <algorithm>
+#include "Calculation.h"
+
+class Player;
 
 class EnemyBullet {
 
@@ -24,6 +27,9 @@ public:
 
 	bool IsDead() const { return isDead_; }
 
+	KamataEngine::Vector3 GetWorldPosition() const;
+	void SetPlayer(Player* player) { player_ = player; }
+
 private:
 	KamataEngine::Model* model_;
 	// テクスチャハンドル
@@ -35,10 +41,16 @@ private:
 	// 速度
 	KamataEngine::Vector3 velocity_;
 
+	// 速さ
+	static inline const float kBulletSpeed = 1.0f;
+
 	// 寿命
 	static const int32_t kLifeTime = 60 * 2;
 	// デスタイマー
 	int32_t deathTimer_ = kLifeTime;
 	// デスフラグ
 	bool isDead_ = false;
+
+	// 自キャラ
+	Player* player_ = nullptr;
 };

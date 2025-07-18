@@ -8,66 +8,17 @@ GameScene::~GameScene() {
 
 	// 自キャラの解放
 	delete player_;
+	// カメラの解放
 	delete debugCamera_;
+	// 敵キャラの解放
 	delete enemy_;
-}
 
-void GameScene::CheckAllCollisions() {
-	
-	// コライダー
-	std::list<Collider*> colliders_;
-	// コライダーをリストに登録
-	colliders_.push_back(player_);
-	colliders_.push_back(enemy_);
-	for (PlayerBullet* bullet : player_->GetBullets()) {
-		colliders_.push_back(bullet);
-	}
-	for (EnemyBullet* bullet : enemy_->GetBullets()){
-		colliders_.push_back(bullet);
-	}
+	// モデルの解放
+	delete playerModel_;
+	delete enemyModel_;
 
-	// リスト内のペアの総当たり
-	std::list<Collider*>::iterator itrA = colliders_.begin();
-	for (; itrA != colliders_.end(); ++itrA) {
-
-		// イテレータAからコライダーAを取得
-		Collider* colliderA = *itrA;
-
-		std::list<Collider*>::iterator itrB = itrA;
-		itrB++;
-
-		for (; itrB != colliders_.end(); ++itrB) {
-		
-			// イテレータBからコライダーBを取得
-			Collider* colliderB = *itrB;
-
-			// ペアのあたり判定
-			CheckCollisionPair(colliderA, colliderB);
-		}
-	}
-}
-
-void GameScene::CheckCollisionPair(Collider* colliderA, Collider* colliderB) {
-	Vector3 posA = colliderA->GetWorldPosition();
-	Vector3 posB = colliderB->GetWorldPosition();
-
-	float distance = Length(posA - posB);
-	// 球と球のあたり判定
-	if (distance < colliderA->GetRadius() + colliderB->GetRadius()) {
-
-		// 衝突フィルタリング
-		if (
-		    // ビットAND判定
-		    (colliderA->GetCollisionAttribute() & colliderB->GetCollisionMask()) ||
-			(colliderB->GetCollisionAttribute() & colliderA->GetCollisionMask())) {
-			return;
-		}	
-
-		// 自弾のデスフラグを立てる
-		colliderA->OnCollision();
-		// 敵弾のデスフラグを立てる
-		colliderB->OnCollision();
-	}
+	// 衝突マネージャの解放
+	delete collisionManager_;
 }
 
 void GameScene::Initialize() {
@@ -106,6 +57,10 @@ void GameScene::Initialize() {
 	AxisIndicator::GetInstance()->SetVisible(true);
 	// 軸方向表示が参照するビュープロジェクションをしていする
 	AxisIndicator::GetInstance()->SetTargetCamera(&viewProjection_);
+	
+	// 衝突マネージャの生成
+	collisionManager_ = new CollisionManager();
+
 }
 
 void GameScene::Update() {
@@ -117,7 +72,10 @@ void GameScene::Update() {
 	enemy_->Update();
 
 	// あたり判定
-	CheckAllCollisions();
+	//CheckAllCollisions();
+
+	// 衝突マネージャの更新
+	collisionManager_->CheckAllCollisions(player_, enemy_);
 
 	if (isDebugCameraActive_) {
 		debugCamera_->Update();

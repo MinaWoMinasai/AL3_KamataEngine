@@ -119,6 +119,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerBullet.cpp" />
+    <ClCompile Include="Skydome.cpp" />
     <ClCompile Include="TimeCall.cpp" />
     <ClCompile Include="WorldTransformClass.cpp" />
   </ItemGroup>
@@ -210,6 +211,7 @@
     <ClInclude Include="LeaveState.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerBullet.h" />
+    <ClInclude Include="Skydome.h" />
     <ClInclude Include="TimeCall.h" />
     <ClInclude Include="WorldTransformClass.h" />
   </ItemGroup>

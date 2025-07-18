@@ -16,15 +16,19 @@ GameScene::~GameScene() {
 	// モデルの解放
 	delete playerModel_;
 	delete enemyModel_;
+	delete skydomeModel_;
 
 	// 衝突マネージャの解放
 	delete collisionManager_;
+
+	// 天球の解放
+	delete skydome_;
 }
 
 void GameScene::Initialize() {
 
 	// ビュープロジェクションの初期化
-	// viewProjection_.farZ = 10.0f;
+	viewProjection_.farZ = 1000.0f;
 	viewProjection_.Initialize();
 
 	// ファイル名を指定してテクスチャを読み込む
@@ -34,6 +38,7 @@ void GameScene::Initialize() {
 	// 3Dモデルの生成
 	playerModel_ = Model::Create();
 	enemyModel_ = Model::Create();
+	skydomeModel_ = Model::CreateFromOBJ("skydome", true);
 
 	// 自キャラの生成
 	player_ = new Player();
@@ -61,6 +66,9 @@ void GameScene::Initialize() {
 	// 衝突マネージャの生成
 	collisionManager_ = new CollisionManager();
 
+	// 天球の生成と初期化
+	skydome_ = new Skydome();
+	skydome_->Initialize(skydomeModel_, &viewProjection_);
 }
 
 void GameScene::Update() {
@@ -71,11 +79,11 @@ void GameScene::Update() {
 	// 敵の更新
 	enemy_->Update();
 
-	// あたり判定
-	//CheckAllCollisions();
-
 	// 衝突マネージャの更新
 	collisionManager_->CheckAllCollisions(player_, enemy_);
+
+	// 天球の更新
+	skydome_->Update();
 
 	if (isDebugCameraActive_) {
 		debugCamera_->Update();
@@ -106,6 +114,9 @@ void GameScene::Draw() {
 
 	// 描画開始
 	Model::PreDraw(dxCommon->GetCommandList());
+
+	// 天球の描画
+	skydome_->Draw();
 
 	// 敵の描画
 	enemy_->Draw(viewProjection_);

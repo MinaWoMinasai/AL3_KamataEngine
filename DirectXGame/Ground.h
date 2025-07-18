@@ -1,8 +1,8 @@
 #pragma once
 #include <KamataEngine.h>
+#include "WorldTransformClass.h"
 
-class Skydome {
-
+class Ground {
 public:
 	/// <summary>
 	/// 初期化
@@ -20,14 +20,12 @@ public:
 	void Draw();
 
 private:
-	
 	// ワールドトランスフォーム
 	KamataEngine::WorldTransform worldTransform_;
-	
+
 	// モデル
 	KamataEngine::Model* model_ = nullptr;
 
 	// カメラ
 	KamataEngine::Camera* camera_ = nullptr;
-
 };

@@ -43,7 +43,7 @@ void Enemy::Fire() {
 	EnemyBullet* newBullet = new EnemyBullet();
 	// 自キャラを設定
 	newBullet->SetPlayer(player_);
-	newBullet->Initialize(model_, worldTransform_.translation_, direction);
+	newBullet->Initialize(bulletModel_, worldTransform_.translation_, direction);
 
 	// 弾を登録する
 	bullets_.push_back(newBullet);
@@ -60,10 +60,12 @@ void Enemy::FireAndReset() {
 
 void Enemy::OnCollision() {}
 
-void Enemy::Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Vector3& position) {
+void Enemy::Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Vector3& position, KamataEngine::Model* modelBullet) {
 
 	assert(model);
 	model_ = model;
+	assert(modelBullet);
+	bulletModel_ = modelBullet;
 	textureHandle_ = textureHandle;
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;

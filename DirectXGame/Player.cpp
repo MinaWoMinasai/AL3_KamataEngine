@@ -32,7 +32,7 @@ void Player::Attack() {
 
 		// 弾を生成し、初期化
 		PlayerBullet* newBullet = new PlayerBullet();
-		newBullet->Initialize(model_, worldTransform_.translation_, velocity);
+		newBullet->Initialize(bulletModel_, worldTransform_.translation_, velocity);
 
 		// 弾を登録する
 		bullets_.push_back(newBullet);
@@ -41,10 +41,12 @@ void Player::Attack() {
 
 void Player::OnCollision() {}
 
-void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle) {
+void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Model* bulletModel) {
 
 	assert(model);
+	assert(bulletModel);
 	model_ = model;
+	bulletModel_ = bulletModel;
 	textureHandle_ = textureHandle;
 	worldTransform_.Initialize();
 

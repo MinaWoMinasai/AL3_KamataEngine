@@ -17,6 +17,9 @@ GameScene::~GameScene() {
 	delete playerModel_;
 	delete enemyModel_;
 	delete skydomeModel_;
+	delete playerBulletModel_;
+	delete enemyBulletModel_;
+	delete groundModel_;
 
 	// 衝突マネージャの解放
 	delete collisionManager_;
@@ -30,20 +33,26 @@ void GameScene::Initialize() {
 	// ビュープロジェクションの初期化
 	viewProjection_.farZ = 1000.0f;
 	viewProjection_.Initialize();
+	viewProjection_.translation_.y = 25.0f;
+	viewProjection_.translation_.z = -40.0f;
+	viewProjection_.rotation_.x = 0.5f;
 
 	// ファイル名を指定してテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("player.png");
 	enemyTextureHandle_ = TextureManager::Load("enemy.png");
 
 	// 3Dモデルの生成
-	playerModel_ = Model::Create();
-	enemyModel_ = Model::Create();
+	playerModel_ = Model::CreateFromOBJ("player", true);
+	enemyModel_ = Model::CreateFromOBJ("enemy", true);
 	skydomeModel_ = Model::CreateFromOBJ("skydome", true);
+	playerBulletModel_ = Model::CreateFromOBJ("playerBullet", true);
+	enemyBulletModel_ = Model::CreateFromOBJ("enemyBullet", true);
+	groundModel_ = Model::CreateFromOBJ("ground", true);
 
 	// 自キャラの生成
 	player_ = new Player();
 	// 自キャラの初期化
-	player_->Initialize(playerModel_, textureHandle_);
+	player_->Initialize(playerModel_, textureHandle_, playerBulletModel_);
 
 	// 敵キャラの生成
 	enemy_ = new Enemy();
@@ -51,7 +60,7 @@ void GameScene::Initialize() {
 	enemy_->SetPlayer(player_);
 	// 敵キャラの初期化
 	Vector3 enemyPosition = {10.0f, 0.0f, 50.0f};
-	enemy_->Initialize(enemyModel_, enemyTextureHandle_, enemyPosition);
+	enemy_->Initialize(enemyModel_, enemyTextureHandle_, enemyPosition, enemyBulletModel_);
 
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
@@ -69,6 +78,10 @@ void GameScene::Initialize() {
 	// 天球の生成と初期化
 	skydome_ = new Skydome();
 	skydome_->Initialize(skydomeModel_, &viewProjection_);
+
+	// 地面の生成と初期化
+	ground_ = new Ground();
+	ground_->Initialize(groundModel_, &viewProjection_);
 }
 
 void GameScene::Update() {
@@ -84,6 +97,14 @@ void GameScene::Update() {
 
 	// 天球の更新
 	skydome_->Update();
+
+	// 地面の更新
+	ground_->Update();
+
+	ImGui::Begin("Camera");
+	ImGui::DragFloat3("rotation", &viewProjection_.rotation_.x, 0.1f);
+	ImGui::DragFloat3("translation", &viewProjection_.translation_.x);
+	ImGui::End();
 
 	if (isDebugCameraActive_) {
 		debugCamera_->Update();
@@ -117,6 +138,9 @@ void GameScene::Draw() {
 
 	// 天球の描画
 	skydome_->Draw();
+
+	// 地面の描画
+	ground_->Draw();
 
 	// 敵の描画
 	enemy_->Draw(viewProjection_);

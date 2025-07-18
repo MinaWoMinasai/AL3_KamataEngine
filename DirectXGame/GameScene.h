@@ -6,6 +6,7 @@
 #include "Collider.h"
 #include "CollisionManager.h"
 #include "Skydome.h"
+#include "Ground.h"
 
 // ゲームシーン
 class GameScene {
@@ -56,6 +57,9 @@ private:
 	KamataEngine::Model *playerModel_;
 	KamataEngine::Model* enemyModel_;
 	KamataEngine::Model* skydomeModel_ = nullptr;
+	KamataEngine::Model* playerBulletModel_ = nullptr;
+	KamataEngine::Model* enemyBulletModel_ = nullptr;
+	KamataEngine::Model* groundModel_ = nullptr;
 
 	// デバッグカメラ有効
 	bool isDebugCameraActive_ = false;
@@ -71,4 +75,6 @@ private:
 
 	// 天球
 	Skydome* skydome_ = nullptr;
+	// 地面
+	Ground* ground_ = nullptr;
 };

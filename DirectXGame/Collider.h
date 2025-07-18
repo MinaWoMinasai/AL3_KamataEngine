@@ -21,8 +21,23 @@ public:
 	/// </summary>
 	virtual void OnCollision() = 0;
 
+	// 衝突属性(自分)を取得
+	uint32_t GetCollisionAttribute() const { return collisionAttribute_; }
+	// 衝突属性(自分)を設定
+	void SetCollisionAttribute(uint32_t attribute) { collisionAttribute_ = attribute; }
+	// 衝突マスク(相手)を取得
+	uint32_t GetCollisionMask() const { return collisionMask_; }
+	// 衝突マスク(相手)を設定
+	void SetCollisionMask(uint32_t mask) { collisionMask_ = mask; }
+
 private:
 
 	// 衝突半径
 	float radius_ = 1.0f;
+
+	// 衝突属性
+	uint32_t collisionAttribute_ = 0xffffffff;
+	// 衝突マスク
+	uint32_t collisionMask_ = 0xffffffff;
+
 };

@@ -25,6 +25,11 @@ void EnemyBullet::Initialize(KamataEngine::Model* model, const KamataEngine::Vec
 	worldTransform_.rotation_.y = std::atan2(velocity_.x, velocity_.z);
 	// X軸回り角度(0x)
 	worldTransform_.rotation_.x = std::atan2(-velocity_.y, std::sqrt(velocity_.x * velocity_.x + velocity_.z * velocity_.z));
+
+	// 衝突属性を設定
+	SetCollisionAttribute(kCollisionAttributeEnemy);
+	// 衝突対象を自分の属性以外に設定
+	SetCollisionMask(kCollisionAttributeEnemy | kCollisionAttributeEnemy);
 }
 
 void EnemyBullet::Update() {

@@ -7,6 +7,7 @@
 #include <Windows.h>
 #include <algorithm>
 #include "Collider.h"
+#include "CollisionConfig.h"
 
 class Player;
 

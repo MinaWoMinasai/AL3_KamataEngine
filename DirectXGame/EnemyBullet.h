@@ -5,6 +5,7 @@
 #include <algorithm>
 #include "Calculation.h"
 #include "Collider.h"
+#include "CollisionConfig.h"
 
 class Player;
 

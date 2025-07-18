@@ -6,6 +6,7 @@
 #include "PlayerBullet.h"
 #include <list>
 #include "Collider.h"
+#include "CollisionConfig.h"
 
 /// <summary>
 /// 自キャラ

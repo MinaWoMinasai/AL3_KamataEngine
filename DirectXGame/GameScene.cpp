@@ -28,39 +28,23 @@ void GameScene::CheckAllCollisions() {
 
 	// リスト内のペアの総当たり
 	std::list<Collider*>::iterator itrA = colliders_.begin();
+	for (; itrA != colliders_.end(); ++itrA) {
 
-	// 自弾リストの取得
-	const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
-	// 敵弾リストの取得
-	const std::list<EnemyBullet*>& enemyBullets = enemy_->GetBullets();
+		// イテレータAからコライダーAを取得
+		Collider* colliderA = *itrA;
 
-#pragma region 自キャラと敵弾の衝突判定
-	// 自キャラと敵弾すべてのあたり判定
-	for (EnemyBullet* enemyBullet : enemyBullets) {
-		// ペアの衝突判定
-		CheckCollisionPair(player_, enemyBullet);
-	}
+		std::list<Collider*>::iterator itrB = itrA;
+		itrB++;
 
-#pragma endregion
+		for (; itrB != colliders_.end(); ++itrB) {
+		
+			// イテレータBからコライダーBを取得
+			Collider* colliderB = *itrB;
 
-#pragma region 敵キャラと自弾の衝突判定
-	// 敵キャラと自弾すべてのあたり判定
-	for (PlayerBullet* playerBullet : playerBullets) {
-		// ペアの衝突判定
-		CheckCollisionPair(enemy_, playerBullet);	
-	}
-#pragma endregion
-
-#pragma region 自弾と敵弾のあたり判定
-
-	for (PlayerBullet* playerBullet : playerBullets) {
-		for (EnemyBullet* enemyBullet : enemyBullets) {
-			// ペアの衝突判定
-			CheckCollisionPair(playerBullet, enemyBullet);
+			// ペアのあたり判定
+			CheckCollisionPair(colliderA, colliderB);
 		}
 	}
-
-#pragma endregion
 }
 
 void GameScene::CheckCollisionPair(Collider* colliderA, Collider* colliderB) {
@@ -70,6 +54,15 @@ void GameScene::CheckCollisionPair(Collider* colliderA, Collider* colliderB) {
 	float distance = Length(posA - posB);
 	// 球と球のあたり判定
 	if (distance < colliderA->GetRadius() + colliderB->GetRadius()) {
+
+		// 衝突フィルタリング
+		if (
+		    // ビットAND判定
+		    (colliderA->GetCollisionAttribute() & colliderB->GetCollisionMask()) ||
+			(colliderB->GetCollisionAttribute() & colliderA->GetCollisionMask())) {
+			return;
+		}	
+
 		// 自弾のデスフラグを立てる
 		colliderA->OnCollision();
 		// 敵弾のデスフラグを立てる

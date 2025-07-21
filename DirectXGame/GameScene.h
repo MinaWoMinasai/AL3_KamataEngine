@@ -63,7 +63,7 @@ private:
 	KamataEngine::Model* groundModel_ = nullptr;
 
 	// デバッグカメラ有効
-	bool isDebugCameraActive_ = false;
+	bool isDebugCameraActive_ = true;
 
 	// デバッグカメラ
 	KamataEngine::DebugCamera* debugCamera_ = nullptr;
@@ -81,4 +81,7 @@ private:
 
 	// レールカメラ
 	RailCameraController* railCameraController_ = nullptr;
+
+	// 曲線描画テスト
+	std::vector<KamataEngine::Vector3> controlPoints_;
 };

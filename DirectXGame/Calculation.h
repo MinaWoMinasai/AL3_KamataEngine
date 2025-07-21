@@ -8,3 +8,9 @@ KamataEngine::Vector3 TransformNormal(const KamataEngine::Vector3& v, const Kama
 KamataEngine::Vector3 Lerp(const KamataEngine::Vector3& v1, const KamataEngine::Vector3& v2, float t);
 // 球面線形補間
 KamataEngine::Vector3 Slerp(const KamataEngine::Vector3& v1, const KamataEngine::Vector3& v2, float t);
+
+// Catmull-Rom 補間
+KamataEngine::Vector3 CatmullRomInterpolation(const KamataEngine::Vector3& p0, const KamataEngine::Vector3& p1, const KamataEngine::Vector3& p2, const KamataEngine::Vector3& p3, float t);
+
+// Catmull-Romスプライン曲線上の座標を得る
+KamataEngine::Vector3 CatmullRomPosition(const std::vector<KamataEngine::Vector3>& points, float t);

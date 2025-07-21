@@ -37,9 +37,6 @@ void GameScene::Initialize() {
 	// ビュープロジェクションの初期化
 	viewProjection_.farZ = 1000.0f;
 	viewProjection_.Initialize();
-	//viewProjection_.translation_.y = 25.0f;
-	//viewProjection_.translation_.z = -40.0f;
-	//viewProjection_.rotation_.x = 0.5f;
 
 	// ファイル名を指定してテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("player.png");
@@ -56,7 +53,7 @@ void GameScene::Initialize() {
 	// 自キャラの生成
 	player_ = new Player();
 	// 自キャラの初期化
-	Vector3 playerPosition = {0.0f, 0.0f, 10.0f};
+	Vector3 playerPosition = {0.0f, 0.0f, 0.0f};
 	player_->Initialize(playerModel_, textureHandle_, playerBulletModel_, playerPosition);
 
 	// 敵キャラの生成
@@ -76,7 +73,7 @@ void GameScene::Initialize() {
 	AxisIndicator::GetInstance()->SetVisible(true);
 	// 軸方向表示が参照するビュープロジェクションをしていする
 	AxisIndicator::GetInstance()->SetTargetCamera(&viewProjection_);
-	
+
 	// 衝突マネージャの生成
 	collisionManager_ = new CollisionManager();
 
@@ -90,13 +87,20 @@ void GameScene::Initialize() {
 
 	// レールカメラの生成と初期化
 	railCameraController_ = new RailCameraController();
-	railCameraController_->Initialize(
-	    Vector3(0.0f, 0.0f, -50.0f), 
-		Vector3(0.0f, 0.0f, 0.0f), 
-		&viewProjection_
-	);
+	railCameraController_->Initialize(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), &viewProjection_);
 	// プレイヤーとレールカメラの親子関係を結ぶ
 	player_->SetParent(&railCameraController_->GetWorldTransform());
+	controlPoints_ = {
+	    {0.0f,  0.0f,  0.0f},
+        {10.0f, 10.0f, 0.0f},
+        {10.0f, 15.0f, 0.0f},
+        {20.0f, 15.0f, 0.0f},
+        {20.0f, 0.0f,  0.0f},
+        {30.0f, 0.0f,  0.0f},
+	};
+
+	PrimitiveDrawer::GetInstance()->Initialize();
+	PrimitiveDrawer::GetInstance()->SetCamera(&viewProjection_);
 }
 
 void GameScene::Update() {
@@ -125,11 +129,11 @@ void GameScene::Update() {
 		// ビュープロジェクション行列の転送
 		viewProjection_.TransferMatrix();
 	} else {
-		
+
 		railCameraController_->Update();
 
 		viewProjection_.matView = railCameraController_->GetCamera()->matView;
-		
+
 		// ビュープロジェクション行列の転送
 		viewProjection_.TransferMatrix();
 	}
@@ -163,4 +167,24 @@ void GameScene::Draw() {
 
 	// 描画終了
 	Model::PostDraw();
+	
+	std::vector<Vector3> pointsDrawing;
+	// 線分の数
+	const size_t segmentCount = 100;
+	// 線分の数+1個分の頂点座標を計算
+	for (size_t i = 0; i < segmentCount + 1; i++) {
+		float t = 1.0f / segmentCount * i;
+		Vector3 pos = CatmullRomPosition(controlPoints_, t);
+		// 描画用リストに追加
+		pointsDrawing.push_back(pos);
+	}
+
+	// 先端から2点ずつ取り出して線分を描画
+	for (size_t i = 0; i < pointsDrawing.size() - 1; i++) {
+		// 線分の始点と終点
+		Vector3 start = pointsDrawing[i];
+		Vector3 end = pointsDrawing[i + 1];
+		// 線分を描画
+		PrimitiveDrawer::GetInstance()->DrawLine3d(start, end, {1.0f, 0.0f, 0.0f, 1.0f});
+	}
 }

@@ -7,6 +7,7 @@
 #include "CollisionManager.h"
 #include "Skydome.h"
 #include "Ground.h"
+#include "RailCameraContoller.h"
 
 // ゲームシーン
 class GameScene {
@@ -77,4 +78,7 @@ private:
 	Skydome* skydome_ = nullptr;
 	// 地面
 	Ground* ground_ = nullptr;
+
+	// レールカメラ
+	RailCameraController* railCameraController_ = nullptr;
 };

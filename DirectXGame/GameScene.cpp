@@ -26,6 +26,10 @@ GameScene::~GameScene() {
 
 	// 天球の解放
 	delete skydome_;
+	// 地面の解放
+	delete ground_;
+	// レールカメラの解放
+	delete railCameraController_;
 }
 
 void GameScene::Initialize() {
@@ -33,9 +37,9 @@ void GameScene::Initialize() {
 	// ビュープロジェクションの初期化
 	viewProjection_.farZ = 1000.0f;
 	viewProjection_.Initialize();
-	viewProjection_.translation_.y = 25.0f;
-	viewProjection_.translation_.z = -40.0f;
-	viewProjection_.rotation_.x = 0.5f;
+	//viewProjection_.translation_.y = 25.0f;
+	//viewProjection_.translation_.z = -40.0f;
+	//viewProjection_.rotation_.x = 0.5f;
 
 	// ファイル名を指定してテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("player.png");
@@ -52,7 +56,8 @@ void GameScene::Initialize() {
 	// 自キャラの生成
 	player_ = new Player();
 	// 自キャラの初期化
-	player_->Initialize(playerModel_, textureHandle_, playerBulletModel_);
+	Vector3 playerPosition = {0.0f, 0.0f, 10.0f};
+	player_->Initialize(playerModel_, textureHandle_, playerBulletModel_, playerPosition);
 
 	// 敵キャラの生成
 	enemy_ = new Enemy();
@@ -82,6 +87,16 @@ void GameScene::Initialize() {
 	// 地面の生成と初期化
 	ground_ = new Ground();
 	ground_->Initialize(groundModel_, &viewProjection_);
+
+	// レールカメラの生成と初期化
+	railCameraController_ = new RailCameraController();
+	railCameraController_->Initialize(
+	    Vector3(0.0f, 0.0f, -50.0f), 
+		Vector3(0.0f, 0.0f, 0.0f), 
+		&viewProjection_
+	);
+	// プレイヤーとレールカメラの親子関係を結ぶ
+	player_->SetParent(&railCameraController_->GetWorldTransform());
 }
 
 void GameScene::Update() {
@@ -101,11 +116,6 @@ void GameScene::Update() {
 	// 地面の更新
 	ground_->Update();
 
-	ImGui::Begin("Camera");
-	ImGui::DragFloat3("rotation", &viewProjection_.rotation_.x, 0.1f);
-	ImGui::DragFloat3("translation", &viewProjection_.translation_.x);
-	ImGui::End();
-
 	if (isDebugCameraActive_) {
 		debugCamera_->Update();
 
@@ -115,9 +125,12 @@ void GameScene::Update() {
 		// ビュープロジェクション行列の転送
 		viewProjection_.TransferMatrix();
 	} else {
+		
+		railCameraController_->Update();
 
-		// ビュープロジェクション行列の更新と転送
-		viewProjection_.UpdateMatrix();
+		viewProjection_.matView = railCameraController_->GetCamera()->matView;
+		
+		// ビュープロジェクション行列の転送
 		viewProjection_.TransferMatrix();
 	}
 

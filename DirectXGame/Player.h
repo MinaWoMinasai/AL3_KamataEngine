@@ -41,7 +41,7 @@ public:
 	/// <param name="model">モデル</param>
 	/// <param name="camera">カメラ</param>
 	/// <param name="position">初期座標</param>
-	void Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Model* bulletModel);
+	void Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Model* bulletModel, const KamataEngine::Vector3& position );
 
 	/// <summary>
 	/// 更新
@@ -60,6 +60,8 @@ public:
 
 	// 半径
 	static inline const float kRadius = 1.0f;
+
+	void SetParent(const KamataEngine::WorldTransform* parent) { worldTransform_.parent_ = parent; }
 
 private:
 	// ワールド変換データ

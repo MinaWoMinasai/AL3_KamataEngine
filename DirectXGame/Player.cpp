@@ -32,7 +32,7 @@ void Player::Attack() {
 
 		// 弾を生成し、初期化
 		PlayerBullet* newBullet = new PlayerBullet();
-		newBullet->Initialize(bulletModel_, worldTransform_.translation_, velocity);
+		newBullet->Initialize(bulletModel_, GetWorldPosition(), velocity);
 
 		// 弾を登録する
 		bullets_.push_back(newBullet);
@@ -41,7 +41,7 @@ void Player::Attack() {
 
 void Player::OnCollision() {}
 
-void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Model* bulletModel) {
+void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Model* bulletModel, const KamataEngine::Vector3& position) {
 
 	assert(model);
 	assert(bulletModel);
@@ -49,6 +49,7 @@ void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle, Kama
 	bulletModel_ = bulletModel;
 	textureHandle_ = textureHandle;
 	worldTransform_.Initialize();
+	worldTransform_.translation_ = position;
 
 	// シングルトンインスタンス
 	input_ = Input::GetInstance();

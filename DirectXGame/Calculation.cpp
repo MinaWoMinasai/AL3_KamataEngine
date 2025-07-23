@@ -102,3 +102,12 @@ KamataEngine::Vector3 CatmullRomPosition(const std::vector<KamataEngine::Vector3
 	// 四点を指定してCatmull-Rom補間
 	return CatmullRomInterpolation(p0, p1, p2, p3, t_2);
 }
+
+Vector3 VectorToRotation(const Vector3& dir) {
+	Vector3 rot;
+	rot.y = std::atan2(dir.x, dir.z); // Yaw (Y軸回転)
+	float horizontalLength = std::sqrt(dir.x * dir.x + dir.z * dir.z);
+	rot.x = std::atan2(-dir.y, horizontalLength); // Pitch (X軸回転)
+	rot.z = 0.0f;                                 // Rollは固定
+	return rot;
+}

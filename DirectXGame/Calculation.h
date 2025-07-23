@@ -14,3 +14,5 @@ KamataEngine::Vector3 CatmullRomInterpolation(const KamataEngine::Vector3& p0, c
 
 // Catmull-Romスプライン曲線上の座標を得る
 KamataEngine::Vector3 CatmullRomPosition(const std::vector<KamataEngine::Vector3>& points, float t);
+
+KamataEngine::Vector3 VectorToRotation(const KamataEngine::Vector3& dir);

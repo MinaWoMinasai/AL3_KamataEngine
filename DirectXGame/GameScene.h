@@ -38,7 +38,7 @@ public:
 	/// 描画
 	/// </summary>
 	void Draw();
-
+	
 private:
 
 	// ビュープロジェクション
@@ -63,7 +63,7 @@ private:
 	KamataEngine::Model* groundModel_ = nullptr;
 
 	// デバッグカメラ有効
-	bool isDebugCameraActive_ = true;
+	bool isDebugCameraActive_ = false;
 
 	// デバッグカメラ
 	KamataEngine::DebugCamera* debugCamera_ = nullptr;

@@ -1,6 +1,8 @@
 #pragma once
+#define NOMINMAX
 #include <KamataEngine.h>
 #include "WorldTransformClass.h"
+#include "Calculation.h"
 
 class RailCameraController {
 
@@ -21,6 +23,8 @@ public:
 	// ワールド座標を取得
 	const KamataEngine::WorldTransform& GetWorldTransform() const { return worldTransform_; }
 
+	void SetControlPoints(const std::vector<KamataEngine::Vector3>& points) { controlPoints_ = points; }
+
 private:
 
 	// ワールド変換データ
@@ -28,4 +32,7 @@ private:
 	// カメラ
 	KamataEngine::Camera* camera_;
 
+	std::vector<KamataEngine::Vector3> controlPoints_;
+
+	float t;
 };

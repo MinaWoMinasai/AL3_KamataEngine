@@ -1,15 +1,12 @@
 #include "Enemy.h"
 #include "ApproachState.h"
 #include "Player.h"
+#include "gameScene.h"
 using namespace KamataEngine;
 using namespace MathUtility;
 
 Enemy::~Enemy() {
 
-	// bullet_の開放
-	for (EnemyBullet* bullet : bullets_) {
-		delete bullet;
-	}
 	// TimeCallの解放
 	for (TimeCall* timeCall : timeCalls_) {
 		delete timeCall;
@@ -46,7 +43,8 @@ void Enemy::Fire() {
 	newBullet->Initialize(bulletModel_, worldTransform_.translation_, direction);
 
 	// 弾を登録する
-	bullets_.push_back(newBullet);
+	//bullets_.push_back(newBullet);
+	gameScene_->AddEnemyBullet(newBullet);
 }
 
 void Enemy::FireAndReset() {
@@ -58,7 +56,11 @@ void Enemy::FireAndReset() {
 	timeCalls_.push_back(new TimeCall(std::bind(&Enemy::FireAndReset, this), kFireInterval));
 }
 
-void Enemy::OnCollision() {}
+void Enemy::OnCollision() {
+
+	// デスフラグを立てる
+	isDead_ = true;
+}
 
 void Enemy::Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Vector3& position, KamataEngine::Model* modelBullet) {
 
@@ -93,19 +95,6 @@ void Enemy::Update() {
 		timeCall->Update();
 	}
 
-	for (EnemyBullet* bullet : bullets_) {
-		bullet->Update();
-	}
-
-	// デスフラグが立った球を削除
-	bullets_.remove_if([](EnemyBullet* bullet) {
-		if (bullet->IsDead()) {
-			delete bullet;
-			return true;
-		}
-		return false;
-	});
-
 	// 終了したイベントを削除
 	timeCalls_.remove_if([](TimeCall* timeCall) {
 		if (timeCall->IsFinished()) {
@@ -120,10 +109,6 @@ void Enemy::Update() {
 
 void Enemy::Draw(KamataEngine::Camera& viewProjection) {
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
-
-	for (EnemyBullet* bullet : bullets_) {
-		bullet->Draw(viewProjection);
-	}
 }
 
 void Enemy::SetState(std::unique_ptr<BaseEnemyState> newState) { state_ = std::move(newState); }

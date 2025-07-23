@@ -10,10 +10,12 @@
 #include "CollisionConfig.h"
 
 class Player;
+class GameScene;
 
 class Enemy : public Collider{
 
 public:
+	
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
@@ -63,8 +65,11 @@ public:
 	// 自キャラのセッター
 	void SetPlayer(Player* player) {player_ = player;}
 
-	// 弾の取得
-	const std::list<EnemyBullet*>& GetBullets() const { return bullets_; }
+	// ゲームシーンのセッター
+	void SetGameScene(GameScene* gameScene) {gameScene_ = gameScene;}
+
+	// デスフラグのゲッター
+	bool IsDead() const { return isDead_; }
 
 	//----------------------
 	// 定数
@@ -86,9 +91,6 @@ private:
 	// State Pattern
 	std::unique_ptr<BaseEnemyState> state_;
 
-	// 弾
-	std::list<EnemyBullet*> bullets_;
-
 	// 発射タイマー
 	int32_t fireIntervalTimer = 0;
 
@@ -100,4 +102,9 @@ private:
 
 	// 最初の弾までの時間
 	uint32_t time_ = 60;
+
+	// ゲームシーン
+	GameScene* gameScene_ = nullptr;
+	// デスフラグ
+	bool isDead_ = false;
 };

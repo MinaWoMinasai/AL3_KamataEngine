@@ -3,14 +3,15 @@ using namespace KamataEngine;
 using namespace MathUtility;
 #include "Player.h"
 #include "Enemy.h"
+#include "EnemyBullet.h"
 
-void CollisionManager::CheckAllCollisions(Player* player, Enemy* enemy) {
+void CollisionManager::CheckAllCollisions(Player* player, const std::list<Enemy*>& enemies, const std::list<EnemyBullet*>& enemyBullets) {
 
 	// 衝突マネージャのリストをクリア
 	colliders_.clear();
 
 	// コライダーをリストに登録
-	SetColliders(player, enemy);
+	SetColliders(player, enemies, enemyBullets);
 
 	// リスト内のペアの総当たり
 	std::list<Collider*>::iterator itrA = colliders_.begin();
@@ -55,15 +56,23 @@ void CollisionManager::CheckCollisionPair(Collider* colliderA, Collider* collide
 	}
 }
 
-void CollisionManager::SetColliders(Player* player, Enemy* enemy) {
+void CollisionManager::SetColliders(Player* player, const std::list<Enemy*>& enemies, const std::list<EnemyBullet*>& enemyBullets) {
 
-	// コライダーをリストに登録
+	// プレイヤーを登録
 	colliders_.push_back(player);
-	colliders_.push_back(enemy);
+
+	// プレイヤーの弾を登録
 	for (PlayerBullet* bullet : player->GetBullets()) {
 		colliders_.push_back(bullet);
 	}
-	for (EnemyBullet* bullet : enemy->GetBullets()) {
+
+	// 複数の敵を登録
+	for (Enemy* enemy : enemies) {
+		colliders_.push_back(enemy);
+	}
+
+	// 敵の弾を登録（敵が直接持っていないパターン）
+	for (EnemyBullet* bullet : enemyBullets) {
 		colliders_.push_back(bullet);
 	}
 }

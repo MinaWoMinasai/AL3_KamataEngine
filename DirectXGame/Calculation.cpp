@@ -127,3 +127,22 @@ KamataEngine::Matrix4x4 MakeViewportMatrix(float left, float top, float width, f
 
 	return result;
 }
+
+KamataEngine::Vector3 Project(const KamataEngine::Vector3 worldPosition, float viewportX, float viewportY, float viewportWidth, float viewportHeight, const KamataEngine::Matrix4x4& viewProjection) {
+	
+	
+	// 3Dレティクルのワールド座標から2Dレティクルのスクリーン座標を計算
+	Vector3 positionReticle = worldPosition;
+	// ビューポート行列
+	Matrix4x4 matViewport = MakeViewportMatrix(viewportX, viewportY, viewportWidth, viewportHeight, 0, 1);
+	// ビュー行列とプロジェクション行列、ビューポート行列を合成する
+	Matrix4x4 matviewProjectionViewport = viewProjection * matViewport;
+	// ワールド->スクリーン座標変換
+	positionReticle = TransformCoord(positionReticle, matviewProjectionViewport);
+	
+	return positionReticle;
+}
+
+float Length2D(const KamataEngine::Vector2& v1, const KamataEngine::Vector2& v2) { 
+
+	return sqrtf((v2.x - v1.x) * (v2.x - v1.x) + (v2.y - v1.y) * (v2.y - v1.y)); }

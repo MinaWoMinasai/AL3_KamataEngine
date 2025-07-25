@@ -9,6 +9,9 @@
 #include "CollisionConfig.h"
 #include "Calculation.h"
 
+class LockOn;
+//class Enemy;
+
 /// <summary>
 /// 自キャラ
 /// </summary>
@@ -64,11 +67,15 @@ public:
 	// 弾の取得
 	const std::list<PlayerBullet*>& GetBullets() const { return bullets_; }
 
+	KamataEngine::Vector2 GetReticlePos2D() const { return reticlePos2D; }
+
 	// 半径
 	static inline const float kRadius = 1.0f;
 
 	void SetParent(const KamataEngine::WorldTransform* parent) { worldTransform_.parent_ = parent; }
 	void SetParent3DReticle(const KamataEngine::WorldTransform* parent) { worldTransform3DReticle_.parent_ = parent; }
+
+	void SetLockOn(LockOn* lockOn) { lockOn_ = lockOn; }
 
 private:
 	// ワールド変換データ
@@ -95,6 +102,11 @@ private:
 	KamataEngine::Camera* viewProjection_;
 
 	KamataEngine::Vector3 rayDirection_;
+
+	// 2dレティクルでの位置
+	KamataEngine::Vector2 reticlePos2D;
+
+	LockOn* lockOn_ = nullptr;
 
 };
 

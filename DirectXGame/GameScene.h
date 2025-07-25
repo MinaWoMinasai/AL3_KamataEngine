@@ -9,6 +9,7 @@
 #include "Ground.h"
 #include "RailCameraContoller.h"
 #include <sstream>
+#include "LockOn.h"
 
 // ゲームシーン
 class GameScene {
@@ -126,4 +127,7 @@ private:
 	int32_t waitTime_ = 0;
 	std::vector<std::string> enemyPopLines_;
 	size_t currentLineIndex_ = 0;
+
+	// ロックオン
+	LockOn* lockOn_ = nullptr;
 };

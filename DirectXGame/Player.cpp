@@ -1,6 +1,7 @@
 #include "Player.h"
 using namespace KamataEngine;
 using namespace MathUtility;
+#include "LockOn.h"
 
 Player::~Player() {
 	// bullet_の開放
@@ -28,23 +29,45 @@ void Player::Attack() {
 		//return;
 	}
 	// Rトリガーを押していたら
-	if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) || 
-		input_->TriggerKey(DIK_SPACE) || 
-		input_->IsTriggerMouse(0)) {
-		// 弾の速度
-		const float kBulletSpeed = 1.0f;
-		Vector3 velocity(0, 0, 0);
+	if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) || input_->TriggerKey(DIK_SPACE) || input_->IsTriggerMouse(0)) {
 
-		// 自機から標準オブジェクトへのベクトル
-		velocity = GetWorldPosition3DReticle() - GetWorldPosition();
-		velocity = Normalize(velocity) * kBulletSpeed;
+		// ロックオンしていたら
+		if (lockOn_->GetTarget() != nullptr) {
+			// ロックオン対象の敵を取得
+			Enemy* target = lockOn_->GetTarget();
 
-		// 弾を生成し、初期化
-		PlayerBullet* newBullet = new PlayerBullet();
-		newBullet->Initialize(bulletModel_, GetWorldPosition(), velocity);
+			// 弾の速度
+			const float kBulletSpeed = 1.0f;
+			Vector3 velocity(0, 0, 0);
 
-		// 弾を登録する
-		bullets_.push_back(newBullet);
+			// 自機から敵オブジェクトへのベクトル
+			velocity = target->GetWorldPosition() - GetWorldPosition();
+			velocity = Normalize(velocity) * kBulletSpeed;
+
+			// 弾を生成し、初期化
+			PlayerBullet* newBullet = new PlayerBullet();
+			newBullet->Initialize(bulletModel_, GetWorldPosition(), velocity);
+
+			// 弾を登録する
+			bullets_.push_back(newBullet);
+
+		} else {
+
+			// 弾の速度
+			const float kBulletSpeed = 1.0f;
+			Vector3 velocity(0, 0, 0);
+
+			// 自機から標準オブジェクトへのベクトル
+			velocity = GetWorldPosition3DReticle() - GetWorldPosition();
+			velocity = Normalize(velocity) * kBulletSpeed;
+
+			// 弾を生成し、初期化
+			PlayerBullet* newBullet = new PlayerBullet();
+			newBullet->Initialize(bulletModel_, GetWorldPosition(), velocity);
+
+			// 弾を登録する
+			bullets_.push_back(newBullet);
+		}
 	}
 }
 
@@ -88,7 +111,8 @@ void Player::Update(const KamataEngine::Camera& viewProjection) {
 	ScreenToClient(hwnd, &mousePosition);
 
 	// マウス座標を2dレティクルのスプライトに代入する
-	sprite2DReticle_->SetPosition(Vector2((float)mousePosition.x, (float)mousePosition.y));
+	reticlePos2D = Vector2((float)mousePosition.x, (float)mousePosition.y);
+	sprite2DReticle_->SetPosition(reticlePos2D);
 	// ビューポート行列
 	Matrix4x4 matViewport = MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
 	// ビュー行列とプロジェクション行列、ビューポート行列を合成する
@@ -203,7 +227,11 @@ void Player::Draw(KamataEngine::Camera& viewProjection) {
 	Model::PostDraw();
 }
 
-void Player::DrawUI() { sprite2DReticle_->Draw(); }
+void Player::DrawUI() { 
+	if (lockOn_->GetTarget() == nullptr) {
+		sprite2DReticle_->Draw();
+	}
+}
 
 KamataEngine::Vector3 Player::GetWorldPosition() const {
 

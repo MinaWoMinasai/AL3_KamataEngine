@@ -17,3 +17,8 @@ KamataEngine::Vector3 VectorToRotation(const KamataEngine::Vector3& dir);
 
 // ビューポート変換行列 
 KamataEngine::Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, float minDepth, float maxDepth);
+
+// ワールドスクリーン座標変換
+KamataEngine::Vector3 Project(const KamataEngine::Vector3 worldPosition, float viewportX, float viewportY, float viewportWidth, float viewportHeight, const KamataEngine::Matrix4x4& viewProjection);
+
+float Length2D(const KamataEngine::Vector2& v1, const KamataEngine::Vector2& v2);

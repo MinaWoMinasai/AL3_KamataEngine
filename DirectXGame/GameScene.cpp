@@ -44,6 +44,8 @@ GameScene::~GameScene() {
 	delete ground_;
 	// レールカメラの解放
 	delete railCameraController_;
+	// ロックオンの解放
+	delete lockOn_;
 }
 
 void GameScene::Initialize() {
@@ -117,6 +119,9 @@ void GameScene::Initialize() {
 	
 	PrimitiveDrawer::GetInstance()->Initialize();
 	PrimitiveDrawer::GetInstance()->SetCamera(&viewProjection_);
+
+	lockOn_ = new LockOn();
+	lockOn_->Initialize();
 }
 
 void GameScene::Update() {
@@ -186,6 +191,9 @@ void GameScene::Update() {
 		return false;
 	});
 
+	// ロックオンの更新
+	lockOn_->Update(player_, enemies_, viewProjection_);
+
 	// 天球の更新
 	skydome_->Update();
 
@@ -246,6 +254,7 @@ void GameScene::Draw() {
 	Sprite::PreDraw(dxCommon->GetCommandList());
 
 	player_->DrawUI();
+	lockOn_->Draw();
 
 	// スプライト描画後処理
 	Sprite::PostDraw();

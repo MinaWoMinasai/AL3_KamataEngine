@@ -117,6 +117,7 @@
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="LeaveState.cpp" />
+    <ClCompile Include="LockOn.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerBullet.cpp" />
@@ -212,6 +213,7 @@
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="Ground.h" />
     <ClInclude Include="LeaveState.h" />
+    <ClInclude Include="LockOn.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerBullet.h" />
     <ClInclude Include="RailCameraContoller.h" />

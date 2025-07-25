@@ -74,6 +74,9 @@ void GameScene::Initialize() {
 	enemyBulletModel_ = Model::CreateFromOBJ("enemyBullet", true);
 	groundModel_ = Model::CreateFromOBJ("ground", true);
 
+	// レティクルのテクスチャ
+	TextureManager::Load("2dReticle.png");
+
 	// 自キャラの生成
 	player_ = new Player();
 	// 自キャラの初期化
@@ -111,6 +114,7 @@ void GameScene::Initialize() {
 
 	// プレイヤーとレールカメラの親子関係を結ぶ
 	player_->SetParent(&railCameraController_->GetWorldTransform());
+	player_->SetParent3DReticle(&railCameraController_->GetWorldTransform());
 
 	PrimitiveDrawer::GetInstance()->Initialize();
 	PrimitiveDrawer::GetInstance()->SetCamera(&viewProjection_);
@@ -119,7 +123,7 @@ void GameScene::Initialize() {
 void GameScene::Update() {
 
 	// プレイヤーの更新
-	player_->Update();
+	player_->Update(viewProjection_);
 
 	// 敵発生コマンドの更新
 	UpdateEnemyPopCommands();
@@ -191,6 +195,9 @@ void GameScene::Update() {
 
 void GameScene::Draw() {
 
+	// DirectXCommonのインスタンスの取得
+	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
+
 	std::vector<Vector3> pointsDrawing;
 	// 線分の数
 	const size_t segmentCount = 100;
@@ -210,9 +217,7 @@ void GameScene::Draw() {
 		// 線分を描画
 		PrimitiveDrawer::GetInstance()->DrawLine3d(start, end, {0.0f, 1.0f, 0.0f, 1.0f});
 	}
-	// DirectXCommonのインスタンスの取得
-	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
-
+	
 	// 描画開始
 	Model::PreDraw(dxCommon->GetCommandList());
 
@@ -236,6 +241,13 @@ void GameScene::Draw() {
 	// 描画終了
 	Model::PostDraw();
 
+	// スプライト描画前処理
+	Sprite::PreDraw(dxCommon->GetCommandList());
+
+	player_->DrawUI();
+
+	// スプライト描画後処理
+	Sprite::PostDraw();
 }
 
 void GameScene::LoadEnemyPopData() {

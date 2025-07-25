@@ -2,17 +2,6 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
-Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m) {
-
-	Vector3 result{
-	    v.x * m.m[0][0] + v.y * m.m[1][0] + v.z * m.m[2][0],
-	    v.x * m.m[0][1] + v.y * m.m[1][1] + v.z * m.m[2][1],
-	    v.x * m.m[0][2] + v.y * m.m[1][2] + v.z * m.m[2][2],
-	};
-
-	return result;
-}
-
 KamataEngine::Vector3 Lerp(const KamataEngine::Vector3& v1, const KamataEngine::Vector3& v2, float t) { 
 	return (1.0f - t) * v1 + t * v2; 
 }
@@ -110,4 +99,31 @@ Vector3 VectorToRotation(const Vector3& dir) {
 	rot.x = std::atan2(-dir.y, horizontalLength); // Pitch (X軸回転)
 	rot.z = 0.0f;                                 // Rollは固定
 	return rot;
+}
+
+KamataEngine::Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, float minDepth, float maxDepth) {
+
+	Matrix4x4 result;
+
+	result.m[0][0] = width / 2.0f;
+	result.m[0][1] = 0.0f;
+	result.m[0][2] = 0.0f;
+	result.m[0][3] = 0.0f;
+
+	result.m[1][0] = 0.0f;
+	result.m[1][1] = -height / 2.0f;
+	result.m[1][2] = 0.0f;
+	result.m[1][3] = 0.0f;
+
+	result.m[2][0] = 0.0f;
+	result.m[2][1] = 0.0f;
+	result.m[2][2] = maxDepth - minDepth;
+	result.m[2][3] = 0.0f;
+
+	result.m[3][0] = left + width / 2.0f;
+	result.m[3][1] = top + height / 2.0f;
+	result.m[3][2] = minDepth;
+	result.m[3][3] = 1.0f;
+
+	return result;
 }

@@ -7,6 +7,7 @@
 #include <list>
 #include "Collider.h"
 #include "CollisionConfig.h"
+#include "Calculation.h"
 
 /// <summary>
 /// 自キャラ
@@ -41,20 +42,25 @@ public:
 	/// <param name="model">モデル</param>
 	/// <param name="camera">カメラ</param>
 	/// <param name="position">初期座標</param>
-	void Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Model* bulletModel, const KamataEngine::Vector3& position );
+	void Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Model* bulletModel, const KamataEngine::Vector3& position);
 
 	/// <summary>
 	/// 更新
 	/// </summary>
-	void Update();
+	void Update(const KamataEngine::Camera& viewProjection);
 
 	/// <summary>
 	/// 描画
 	/// </summary>
 	void Draw(KamataEngine::Camera& viewProjection);
 
-	KamataEngine::Vector3 GetWorldPosition() const override;
+	/// <summary>
+	/// UI描画
+	/// </summary>
+	void DrawUI();
 
+	KamataEngine::Vector3 GetWorldPosition() const override;
+	KamataEngine::Vector3 GetWorldPosition3DReticle() const;
 	// 弾の取得
 	const std::list<PlayerBullet*>& GetBullets() const { return bullets_; }
 
@@ -62,6 +68,7 @@ public:
 	static inline const float kRadius = 1.0f;
 
 	void SetParent(const KamataEngine::WorldTransform* parent) { worldTransform_.parent_ = parent; }
+	void SetParent3DReticle(const KamataEngine::WorldTransform* parent) { worldTransform3DReticle_.parent_ = parent; }
 
 private:
 	// ワールド変換データ
@@ -77,6 +84,15 @@ private:
 
 	// 弾
 	std::list<PlayerBullet*> bullets_;
+
+	// 3dレティクル用ワールドトランスフォーム
+	KamataEngine::WorldTransform worldTransform3DReticle_;
+
+	// 2Dレティクル用スプライト
+	KamataEngine::Sprite* sprite2DReticle_ = nullptr;
+	
+	// ビュープロジェクション
+	KamataEngine::Camera* viewProjection_;
 
 };
 

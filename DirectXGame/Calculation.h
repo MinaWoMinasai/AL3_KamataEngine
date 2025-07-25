@@ -2,8 +2,6 @@
 #include <KamataEngine.h>
 #include <algorithm>
 
-KamataEngine::Vector3 TransformNormal(const KamataEngine::Vector3& v, const KamataEngine::Matrix4x4& m);
-
 // 線形補間
 KamataEngine::Vector3 Lerp(const KamataEngine::Vector3& v1, const KamataEngine::Vector3& v2, float t);
 // 球面線形補間
@@ -16,3 +14,6 @@ KamataEngine::Vector3 CatmullRomInterpolation(const KamataEngine::Vector3& p0, c
 KamataEngine::Vector3 CatmullRomPosition(const std::vector<KamataEngine::Vector3>& points, float t);
 
 KamataEngine::Vector3 VectorToRotation(const KamataEngine::Vector3& dir);
+
+// ビューポート変換行列 
+KamataEngine::Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, float minDepth, float maxDepth);

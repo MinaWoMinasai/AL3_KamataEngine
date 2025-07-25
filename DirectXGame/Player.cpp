@@ -7,6 +7,7 @@ Player::~Player() {
 	for (PlayerBullet* bullet : bullets_) {
 		delete bullet;
 	}
+	delete sprite2DReticle_;
 }
 
 void Player::Rotate() {
@@ -21,14 +22,25 @@ void Player::Rotate() {
 }
 
 void Player::Attack() {
-	if (input_->TriggerKey(DIK_SPACE)) {
+	// if (input_->TriggerKey(DIK_SPACE)) {
+	// }
+	XINPUT_STATE joyState;
+
+	// ゲームパッド未接続なら何もせず抜ける
+	if (!Input::GetInstance()->GetJoystickState(0, joyState)) {
+		return;
+	}
+
+	// Rトリガーを押していたら
+	if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
 
 		// 弾の速度
 		const float kBulletSpeed = 1.0f;
 		Vector3 velocity(0, 0, kBulletSpeed);
 
-		// 速度ベクトルを自機の向きに合わせて回転させる
-		velocity = TransformNormal(velocity, worldTransform_.matWorld_);
+		// 自機から標準オブジェクトへのベクトル
+		velocity = GetWorldPosition3DReticle() - GetWorldPosition();
+		velocity = Normalize(velocity) * kBulletSpeed;
 
 		// 弾を生成し、初期化
 		PlayerBullet* newBullet = new PlayerBullet();
@@ -58,19 +70,56 @@ void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle, Kama
 	SetCollisionAttribute(kCollisionAttributePlayer);
 	// 衝突対象を自分の属性以外に設定
 	SetCollisionMask(kCollisionAttributePlayer | kCollisionAttributePlayer);
+
+	// 3Dレティクルワールドトランスフォーム
+	worldTransform3DReticle_.Initialize();
+
+	// レティクル用テクスチャ取得
+	uint32_t textureReticle = TextureManager::Load("2dReticle.png");
+	// スプライト生成
+	sprite2DReticle_ = Sprite::Create(textureReticle, {640.0f, 360.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.5f, 0.5f});
 }
 
-void Player::Update() {
+void Player::Update(const KamataEngine::Camera& viewProjection) {
 
-	ImGui::Begin("Player");
-	ImGui::DragFloat3("translation", &worldTransform_.translation_.x);
-	ImGui::End();
+	// 自機から3Dレティクルへの距離
+	const float kDistanceToReticle = 20.0f;
+	// 自機から3Dレティクルへのオフセット(Z+向き)
+	Vector3 offset = {0.0f, 0.0f, 1.0f};
+	// 自機のワールド行列の回転を判定
+	offset = TransformNormal(offset, worldTransform_.matWorld_);
+	// ベクトルの長さを整える
+	offset = Normalize(offset) * kDistanceToReticle;
+	// 3Dレティクルの座標を設定
+	worldTransform3DReticle_.translation_ = worldTransform_.translation_ + offset;
+	WorldTransformUpdate(worldTransform3DReticle_);
+
+	// 3Dレティクルのワールド座標から2Dレティクルのスクリーン座標を計算
+	Vector3 positionReticle = GetWorldPosition3DReticle();
+	// ビューポート行列
+	Matrix4x4 matViewport = MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
+	// ビュー行列とプロジェクション行列、ビューポート行列を合成する
+	Matrix4x4 matviewProjectionViewport = viewProjection.matView * viewProjection.matProjection * matViewport;
+	// ワールド->スクリーン座標変換
+	positionReticle = TransformCoord(positionReticle, matviewProjectionViewport);
+	// スプライトのレティクルに座標設定
+	sprite2DReticle_->SetPosition(Vector2(positionReticle.x, positionReticle.y));
 
 	// キャラクターの移動ベクトル
 	Vector3 move = {0, 0, 0};
 
 	// キャラクターの移動速さ
 	const float kCharacterSpeed = 0.2f;
+
+	// ゲームパッドの状態をを得る変数(XINPUT)
+	XINPUT_STATE joyState;
+
+	// ゲームパッド状態取得
+	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
+
+		move.x += (float)joyState.Gamepad.sThumbLX / SHRT_MAX * kCharacterSpeed;
+		move.y += (float)joyState.Gamepad.sThumbLY / SHRT_MAX * kCharacterSpeed;
+	}
 
 	// 押した方向で移動ベクトルを変更(左右)
 	if (input_->PushKey(DIK_LEFT)) {
@@ -136,7 +185,9 @@ void Player::Draw(KamataEngine::Camera& viewProjection) {
 	Model::PostDraw();
 }
 
-KamataEngine::Vector3 Player::GetWorldPosition() const { 
+void Player::DrawUI() { sprite2DReticle_->Draw(); }
+
+KamataEngine::Vector3 Player::GetWorldPosition() const {
 
 	// ワールド座標を入れる
 	Vector3 worldPos;
@@ -146,5 +197,15 @@ KamataEngine::Vector3 Player::GetWorldPosition() const {
 	worldPos.z = worldTransform_.matWorld_.m[3][2];
 
 	return worldPos;
+}
 
+KamataEngine::Vector3 Player::GetWorldPosition3DReticle() const {
+	// ワールド座標を入れる
+	Vector3 worldPos;
+	// ワールド行列の平行移動成分を取得(ワールド座標)
+	worldPos.x = worldTransform3DReticle_.matWorld_.m[3][0];
+	worldPos.y = worldTransform3DReticle_.matWorld_.m[3][1];
+	worldPos.z = worldTransform3DReticle_.matWorld_.m[3][2];
+
+	return worldPos;
 }

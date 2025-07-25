@@ -22,21 +22,18 @@ void Player::Rotate() {
 }
 
 void Player::Attack() {
-	// if (input_->TriggerKey(DIK_SPACE)) {
-	// }
+
 	XINPUT_STATE joyState;
-
-	// ゲームパッド未接続なら何もせず抜ける
 	if (!Input::GetInstance()->GetJoystickState(0, joyState)) {
-		return;
+		//return;
 	}
-
 	// Rトリガーを押していたら
-	if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
-
+	if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) || 
+		input_->TriggerKey(DIK_SPACE) || 
+		input_->IsTriggerMouse(0)) {
 		// 弾の速度
 		const float kBulletSpeed = 1.0f;
-		Vector3 velocity(0, 0, kBulletSpeed);
+		Vector3 velocity(0, 0, 0);
 
 		// 自機から標準オブジェクトへのベクトル
 		velocity = GetWorldPosition3DReticle() - GetWorldPosition();
@@ -82,34 +79,50 @@ void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle, Kama
 
 void Player::Update(const KamataEngine::Camera& viewProjection) {
 
-	// 自機から3Dレティクルへの距離
-	const float kDistanceToReticle = 20.0f;
-	// 自機から3Dレティクルへのオフセット(Z+向き)
-	Vector3 offset = {0.0f, 0.0f, 1.0f};
-	// 自機のワールド行列の回転を判定
-	offset = TransformNormal(offset, worldTransform_.matWorld_);
-	// ベクトルの長さを整える
-	offset = Normalize(offset) * kDistanceToReticle;
-	// 3Dレティクルの座標を設定
-	worldTransform3DReticle_.translation_ = worldTransform_.translation_ + offset;
-	WorldTransformUpdate(worldTransform3DReticle_);
+	POINT mousePosition;
+	// マウス座標(スクリーン座標)を取得する
+	GetCursorPos(&mousePosition);
 
-	// 3Dレティクルのワールド座標から2Dレティクルのスクリーン座標を計算
-	Vector3 positionReticle = GetWorldPosition3DReticle();
+	// クライアントエリア座標に変換する
+	HWND hwnd = WinApp::GetInstance()->GetHwnd();
+	ScreenToClient(hwnd, &mousePosition);
+
+	// マウス座標を2dレティクルのスプライトに代入する
+	sprite2DReticle_->SetPosition(Vector2((float)mousePosition.x, (float)mousePosition.y));
 	// ビューポート行列
 	Matrix4x4 matViewport = MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
 	// ビュー行列とプロジェクション行列、ビューポート行列を合成する
 	Matrix4x4 matviewProjectionViewport = viewProjection.matView * viewProjection.matProjection * matViewport;
-	// ワールド->スクリーン座標変換
-	positionReticle = TransformCoord(positionReticle, matviewProjectionViewport);
-	// スプライトのレティクルに座標設定
-	sprite2DReticle_->SetPosition(Vector2(positionReticle.x, positionReticle.y));
+	// 合成行列の逆行列を計算する
+	Matrix4x4 matInverseVPV = Inverse(matviewProjectionViewport);
+
+	// スクリーン座標
+	Vector3 posNear = Vector3((float)mousePosition.x, (float)mousePosition.y, 0);
+	Vector3 posFar = Vector3((float)mousePosition.x, (float)mousePosition.y, 1);
+
+	// スクリーンからワールド座標系へ
+	posNear = TransformCoord(posNear, matInverseVPV);
+	posFar = TransformCoord(posFar, matInverseVPV);
+
+	// プレイヤーのワールド座標を取得
+	Vector3 playerPos = GetWorldPosition();
+
+	// マウスレイの方向
+	Vector3 mouseDirection = posFar - posNear;
+	rayDirection_ = Normalize(mouseDirection);
+	// カメラから照準オブジェクトの距離
+	const float kDistanceTestObject = 100.0f;
+	worldTransform3DReticle_.translation_ = posNear + rayDirection_ * kDistanceTestObject;
+	WorldTransformUpdate(worldTransform3DReticle_);
 
 	// キャラクターの移動ベクトル
 	Vector3 move = {0, 0, 0};
 
 	// キャラクターの移動速さ
 	const float kCharacterSpeed = 0.2f;
+
+	// スプライトの現在座標を取得
+	Vector2 spritePosition = sprite2DReticle_->GetPosition();
 
 	// ゲームパッドの状態をを得る変数(XINPUT)
 	XINPUT_STATE joyState;
@@ -119,6 +132,12 @@ void Player::Update(const KamataEngine::Camera& viewProjection) {
 
 		move.x += (float)joyState.Gamepad.sThumbLX / SHRT_MAX * kCharacterSpeed;
 		move.y += (float)joyState.Gamepad.sThumbLY / SHRT_MAX * kCharacterSpeed;
+
+		spritePosition.x += (float)joyState.Gamepad.sThumbRX / SHRT_MAX * 5.0f;
+		spritePosition.y += (float)joyState.Gamepad.sThumbRY / SHRT_MAX * 5.0f;
+
+		// スプライトの座標変更を変更
+		sprite2DReticle_->SetPosition(spritePosition);
 	}
 
 	// 押した方向で移動ベクトルを変更(左右)
@@ -180,7 +199,6 @@ void Player::Draw(KamataEngine::Camera& viewProjection) {
 	}
 
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
-
 	// 描画終了
 	Model::PostDraw();
 }

@@ -41,5 +41,5 @@ void RailCameraController::Update() {
 
 	// ビュー行列を生成
 	camera_->matView = Inverse(worldTransform_.matWorld_);
-
+	
 }

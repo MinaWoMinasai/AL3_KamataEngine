@@ -94,5 +94,7 @@ private:
 	// ビュープロジェクション
 	KamataEngine::Camera* viewProjection_;
 
+	KamataEngine::Vector3 rayDirection_;
+
 };
 

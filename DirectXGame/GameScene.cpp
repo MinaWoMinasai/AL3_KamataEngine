@@ -114,14 +114,42 @@ void GameScene::Initialize() {
 
 	// プレイヤーとレールカメラの親子関係を結ぶ
 	player_->SetParent(&railCameraController_->GetWorldTransform());
-	player_->SetParent3DReticle(&railCameraController_->GetWorldTransform());
-
+	
 	PrimitiveDrawer::GetInstance()->Initialize();
 	PrimitiveDrawer::GetInstance()->SetCamera(&viewProjection_);
 }
 
 void GameScene::Update() {
 
+	if (isDebugCameraActive_) {
+		debugCamera_->Update();
+
+		viewProjection_.matView = debugCamera_->GetCamera().matView;
+		viewProjection_.matProjection = debugCamera_->GetCamera().matProjection;
+
+		// ビュープロジェクション行列の転送
+		viewProjection_.TransferMatrix();
+	} else {
+
+		railCameraController_->Update();
+
+		viewProjection_.matView = railCameraController_->GetCamera()->matView;
+		viewProjection_.matProjection = railCameraController_->GetCamera()->matProjection;
+
+		// ビュープロジェクション行列の転送
+		viewProjection_.TransferMatrix();
+		
+	}
+
+#ifdef _DEBUG
+	if (input_->TriggerKey(DIK_LSHIFT)) {
+		if (isDebugCameraActive_) {
+			isDebugCameraActive_ = false;
+		} else {
+			isDebugCameraActive_ = true;
+		}
+	}
+#endif
 	// プレイヤーの更新
 	player_->Update(viewProjection_);
 
@@ -164,33 +192,6 @@ void GameScene::Update() {
 	// 地面の更新
 	ground_->Update();
 
-	if (isDebugCameraActive_) {
-		debugCamera_->Update();
-
-		viewProjection_.matView = debugCamera_->GetCamera().matView;
-		viewProjection_.matProjection = debugCamera_->GetCamera().matProjection;
-
-		// ビュープロジェクション行列の転送
-		viewProjection_.TransferMatrix();
-	} else {
-
-		railCameraController_->Update();
-
-		viewProjection_.matView = railCameraController_->GetCamera()->matView;
-
-		// ビュープロジェクション行列の転送
-		viewProjection_.TransferMatrix();
-	}
-
-#ifdef _DEBUG
-	if (input_->TriggerKey(DIK_LSHIFT)) {
-		if (isDebugCameraActive_) {
-			isDebugCameraActive_ = false;
-		} else {
-			isDebugCameraActive_ = true;
-		}
-	}
-#endif
 }
 
 void GameScene::Draw() {

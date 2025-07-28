@@ -2,6 +2,7 @@
 #include <KamataEngine.h>
 #include "Enemy.h"
 #include "Player.h"
+#include <list>
 
 class LockOn {
 public:
@@ -23,11 +24,18 @@ public:
 	/// </summary>
 	void Draw();
 
-	Enemy* GetTarget() const { return target_; }
+	/// <summary>
+	/// ロックオン解除
+	/// </summary>
+	void ClearTargets();
+
+	const std::vector<Enemy*>& GetTargets() const { return targets_; }
 
 private:
-	KamataEngine::Sprite* spriteLockOn_;
+	
+	std::vector<KamataEngine::Sprite*> sprites_; // ロックオン対象ごとのスプライト
+	std::vector<Enemy*> targets_;  // ロックオン対象
+	uint32_t textureHandle_;       // ロックオンマークのテクスチャ
 
-	// ロック対象
-	Enemy* target_ = nullptr;
+	bool isLockOnFixed_ = false; // 一度ロックオンされたらtrueにして維持
 };

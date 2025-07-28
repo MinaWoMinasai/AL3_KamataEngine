@@ -36,11 +36,6 @@ public:
 	void Attack();
 
 	/// <summary>
-	/// ミサイル発射
-	/// </summary>
-	void AttackMissile();
-
-	/// <summary>
 	/// 衝突判定
 	/// </summary>
 	void OnCollision() override;

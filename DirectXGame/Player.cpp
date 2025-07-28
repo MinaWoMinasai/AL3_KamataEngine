@@ -26,49 +26,13 @@ void Player::Attack() {
 
 	XINPUT_STATE joyState;
 	if (!Input::GetInstance()->GetJoystickState(0, joyState)) {
-		//return;
+		// return;
 	}
 	// Rトリガーを押していたら
 	if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) || input_->TriggerKey(DIK_SPACE) || input_->IsTriggerMouse(0)) {
 
-		// ロックオンしていたら
-		if (lockOn_ == nullptr) {
-			return;
-		}
-
-		if (lockOn_->GetTarget() != nullptr) {
-			// ロックオン対象の敵を取得
-			Enemy* target = lockOn_->GetTarget();
-
-			// 弾の速度
-			const float kBulletSpeed = 0.5f;
-
-			// 自キャラの位置を取得
-			Vector3 playerPos = GetWorldPosition();
-			// 敵キャラのワールド座標を取得
-			Vector3 enemyPos = target->GetWorldPosition();
-			// 敵キャラから自キャラへのベクトルを求める
-			Vector3 direction = enemyPos - playerPos;
-			// ベクトルの正規化
-			direction = Normalize(direction);
-			// ベクトルの長さを速さに合わせる
-			direction *= kBulletSpeed;
-
-			// 自機と同じ位置なら発射しない
-			if (direction.x == 0.0f && direction.y == 0.0f && direction.z == 0.0f) {
-				return;
-			}
-
-			// 弾を生成し、初期化
-			Missile* newBullet = new Missile();
-			// 敵キャラを設定
-			newBullet->SetEnemy(target);
-			newBullet->Initialize(missileModel_, GetWorldPosition(), direction);
-
-			// 弾を登録する
-			missiles_.push_back(newBullet);
-
-		} else {
+		// ロックオンしていなかったら通常弾
+		if (lockOn_ == nullptr || lockOn_->GetTargets().empty()) {
 
 			// 弾の速度
 			const float kBulletSpeed = 1.0f;
@@ -84,14 +48,35 @@ void Player::Attack() {
 
 			// 弾を登録する
 			bullets_.push_back(newBullet);
+
+			return;
 		}
+
+		const float kBulletSpeed = 0.5f;
+		for (Enemy* target : lockOn_->GetTargets()) {
+			if (!target)
+				continue;
+
+			Vector3 playerPos = GetWorldPosition();
+			Vector3 enemyPos = target->GetWorldPosition();
+			// 敵キャラから自キャラへのベクトルを求める
+			Vector3 direction = enemyPos - playerPos;
+			// ベクトルの正規化
+			direction = Normalize(direction);
+			// ベクトルの長さを速さに合わせる
+			direction *= kBulletSpeed;
+
+			Missile* newMissile = new Missile();
+			newMissile->SetEnemy(target);
+			newMissile->Initialize(missileModel_, playerPos, direction);
+
+			// 弾を登録する
+			missiles_.push_back(newMissile);
+		}
+
+		// 攻撃したらロックオン解除
+		lockOn_->ClearTargets();
 	}
-}
-
-void Player::AttackMissile() {
-
-	
-
 }
 
 void Player::OnCollision() {}
@@ -269,10 +254,8 @@ void Player::Draw(KamataEngine::Camera& viewProjection) {
 	Model::PostDraw();
 }
 
-void Player::DrawUI() { 
-	if (lockOn_->GetTarget() == nullptr) {
-		sprite2DReticle_->Draw();
-	}
+void Player::DrawUI() {
+	sprite2DReticle_->Draw();
 }
 
 KamataEngine::Vector3 Player::GetWorldPosition() const {

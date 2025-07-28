@@ -6,6 +6,8 @@
 class LockOn {
 public:
 
+	~LockOn();
+
 	/// <summary>
 	/// 初期化
 	/// </summary>

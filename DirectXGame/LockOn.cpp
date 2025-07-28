@@ -2,6 +2,8 @@
 using namespace KamataEngine;  
 using namespace MathUtility; 
 
+LockOn::~LockOn() { delete spriteLockOn_; }
+
 void LockOn::Initialize() {  
 
    // レティクル用テクスチャ取得  

@@ -89,6 +89,7 @@ private:
 	KamataEngine::Model* enemyModel_;
 	KamataEngine::Model* skydomeModel_ = nullptr;
 	KamataEngine::Model* playerBulletModel_ = nullptr;
+	KamataEngine::Model* playerMissileModel_ = nullptr;
 	KamataEngine::Model* enemyBulletModel_ = nullptr;
 	KamataEngine::Model* groundModel_ = nullptr;
 

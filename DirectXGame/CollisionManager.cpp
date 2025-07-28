@@ -66,6 +66,11 @@ void CollisionManager::SetColliders(Player* player, const std::list<Enemy*>& ene
 		colliders_.push_back(bullet);
 	}
 
+	// プレイヤーのミサイルを登録
+	for (Missile* missile : player->GetMissiles()) {
+		colliders_.push_back(missile);
+	}
+
 	// 複数の敵を登録
 	for (Enemy* enemy : enemies) {
 		colliders_.push_back(enemy);

@@ -32,24 +32,41 @@ void Player::Attack() {
 	if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) || input_->TriggerKey(DIK_SPACE) || input_->IsTriggerMouse(0)) {
 
 		// ロックオンしていたら
+		if (lockOn_ == nullptr) {
+			return;
+		}
+
 		if (lockOn_->GetTarget() != nullptr) {
 			// ロックオン対象の敵を取得
 			Enemy* target = lockOn_->GetTarget();
 
 			// 弾の速度
-			const float kBulletSpeed = 1.0f;
-			Vector3 velocity(0, 0, 0);
+			const float kBulletSpeed = 0.5f;
 
-			// 自機から敵オブジェクトへのベクトル
-			velocity = target->GetWorldPosition() - GetWorldPosition();
-			velocity = Normalize(velocity) * kBulletSpeed;
+			// 自キャラの位置を取得
+			Vector3 playerPos = GetWorldPosition();
+			// 敵キャラのワールド座標を取得
+			Vector3 enemyPos = target->GetWorldPosition();
+			// 敵キャラから自キャラへのベクトルを求める
+			Vector3 direction = enemyPos - playerPos;
+			// ベクトルの正規化
+			direction = Normalize(direction);
+			// ベクトルの長さを速さに合わせる
+			direction *= kBulletSpeed;
+
+			// 自機と同じ位置なら発射しない
+			if (direction.x == 0.0f && direction.y == 0.0f && direction.z == 0.0f) {
+				return;
+			}
 
 			// 弾を生成し、初期化
-			PlayerBullet* newBullet = new PlayerBullet();
-			newBullet->Initialize(bulletModel_, GetWorldPosition(), velocity);
+			Missile* newBullet = new Missile();
+			// 敵キャラを設定
+			newBullet->SetEnemy(target);
+			newBullet->Initialize(missileModel_, GetWorldPosition(), direction);
 
 			// 弾を登録する
-			bullets_.push_back(newBullet);
+			missiles_.push_back(newBullet);
 
 		} else {
 
@@ -71,14 +88,22 @@ void Player::Attack() {
 	}
 }
 
+void Player::AttackMissile() {
+
+	
+
+}
+
 void Player::OnCollision() {}
 
-void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Model* bulletModel, const KamataEngine::Vector3& position) {
+void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Model* bulletModel, const KamataEngine::Vector3& position, KamataEngine::Model* missileModel) {
 
 	assert(model);
 	assert(bulletModel);
+	assert(missileModel);
 	model_ = model;
 	bulletModel_ = bulletModel;
+	missileModel_ = missileModel;
 	textureHandle_ = textureHandle;
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
@@ -193,8 +218,21 @@ void Player::Update(const KamataEngine::Camera& viewProjection) {
 		bullet->Update();
 	}
 
+	for (Missile* missile : missiles_) {
+		missile->Update();
+	}
+
 	// デスフラグが立った球を削除
 	bullets_.remove_if([](PlayerBullet* bullet) {
+		if (bullet->IsDead()) {
+			delete bullet;
+			return true;
+		}
+		return false;
+	});
+
+	// デスフラグが立ったミサイルを削除
+	missiles_.remove_if([](Missile* bullet) {
 		if (bullet->IsDead()) {
 			delete bullet;
 			return true;
@@ -220,6 +258,10 @@ void Player::Draw(KamataEngine::Camera& viewProjection) {
 	// 弾の描画
 	for (PlayerBullet* bullet : bullets_) {
 		bullet->Draw(viewProjection);
+	}
+
+	for (Missile* missile : missiles_) {
+		missile->Draw(viewProjection);
 	}
 
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);

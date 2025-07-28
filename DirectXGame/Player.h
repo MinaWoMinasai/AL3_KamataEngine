@@ -8,6 +8,7 @@
 #include "Collider.h"
 #include "CollisionConfig.h"
 #include "Calculation.h"
+#include "missile.h"
 
 class LockOn;
 //class Enemy;
@@ -35,6 +36,11 @@ public:
 	void Attack();
 
 	/// <summary>
+	/// ミサイル発射
+	/// </summary>
+	void AttackMissile();
+
+	/// <summary>
 	/// 衝突判定
 	/// </summary>
 	void OnCollision() override;
@@ -45,7 +51,7 @@ public:
 	/// <param name="model">モデル</param>
 	/// <param name="camera">カメラ</param>
 	/// <param name="position">初期座標</param>
-	void Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Model* bulletModel, const KamataEngine::Vector3& position);
+	void Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Model* bulletModel, const KamataEngine::Vector3& position, KamataEngine::Model* missileModel);
 
 	/// <summary>
 	/// 更新
@@ -66,6 +72,7 @@ public:
 	KamataEngine::Vector3 GetWorldPosition3DReticle() const;
 	// 弾の取得
 	const std::list<PlayerBullet*>& GetBullets() const { return bullets_; }
+	const std::list<Missile*>& GetMissiles() const { return missiles_; }
 
 	KamataEngine::Vector2 GetReticlePos2D() const { return reticlePos2D; }
 
@@ -83,6 +90,7 @@ private:
 	// モデル
 	KamataEngine::Model* model_ = nullptr;
 	KamataEngine::Model* bulletModel_ = nullptr;
+	KamataEngine::Model* missileModel_ = nullptr;
 	// テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
 
@@ -91,6 +99,9 @@ private:
 
 	// 弾
 	std::list<PlayerBullet*> bullets_;
+
+	// ミサイル
+	std::list<Missile*> missiles_;
 
 	// 3dレティクル用ワールドトランスフォーム
 	KamataEngine::WorldTransform worldTransform3DReticle_;

@@ -32,6 +32,7 @@ GameScene::~GameScene() {
 	delete enemyModel_;
 	delete skydomeModel_;
 	delete playerBulletModel_;
+	delete playerMissileModel_;
 	delete enemyBulletModel_;
 	delete groundModel_;
 
@@ -73,6 +74,7 @@ void GameScene::Initialize() {
 	enemyModel_ = Model::CreateFromOBJ("enemy", true);
 	skydomeModel_ = Model::CreateFromOBJ("skydome", true);
 	playerBulletModel_ = Model::CreateFromOBJ("playerBullet", true);
+	playerMissileModel_ = Model::CreateFromOBJ("missile", true);
 	enemyBulletModel_ = Model::CreateFromOBJ("enemyBullet", true);
 	groundModel_ = Model::CreateFromOBJ("ground", true);
 
@@ -83,7 +85,7 @@ void GameScene::Initialize() {
 	player_ = new Player();
 	// 自キャラの初期化
 	Vector3 playerPosition = {0.0f, 0.0f, 15.0f};
-	player_->Initialize(playerModel_, textureHandle_, playerBulletModel_, playerPosition);
+	player_->Initialize(playerModel_, textureHandle_, playerBulletModel_, playerPosition, playerMissileModel_);
 
 	// 敵発生データの読み込み
 	LoadEnemyPopData();

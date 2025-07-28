@@ -119,6 +119,7 @@
     <ClCompile Include="LeaveState.cpp" />
     <ClCompile Include="LockOn.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="missile.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerBullet.cpp" />
     <ClCompile Include="RailCameraContoller.cpp" />
@@ -214,6 +215,7 @@
     <ClInclude Include="Ground.h" />
     <ClInclude Include="LeaveState.h" />
     <ClInclude Include="LockOn.h" />
+    <ClInclude Include="missile.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerBullet.h" />
     <ClInclude Include="RailCameraContoller.h" />

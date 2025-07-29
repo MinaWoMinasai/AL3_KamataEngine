@@ -2,6 +2,7 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 #include "LockOn.h"
+#include "RailCameraContoller.h"
 
 Player::~Player() {
 	// bullet_の開放
@@ -22,7 +23,7 @@ void Player::Rotate() {
 	}
 }
 
-void Player::Attack() {
+void Player::Attack(RailCameraController* railCameraController) {
 
 	XINPUT_STATE joyState;
 	if (!Input::GetInstance()->GetJoystickState(0, joyState)) {
@@ -37,14 +38,15 @@ void Player::Attack() {
 			// 弾の速度
 			const float kBulletSpeed = 1.0f;
 			Vector3 velocity(0, 0, 0);
+			Vector3 playerPos = GetWorldPosition() + Vector3(0,0,railCameraController->GetWorldPosition().z);
 
 			// 自機から標準オブジェクトへのベクトル
-			velocity = GetWorldPosition3DReticle() - GetWorldPosition();
+			velocity = GetWorldPosition3DReticle() - playerPos;
 			velocity = Normalize(velocity) * kBulletSpeed;
 
 			// 弾を生成し、初期化
 			PlayerBullet* newBullet = new PlayerBullet();
-			newBullet->Initialize(bulletModel_, GetWorldPosition(), velocity);
+			newBullet->Initialize(bulletModel_, playerPos, velocity);
 
 			// 弾を登録する
 			bullets_.push_back(newBullet);
@@ -57,7 +59,7 @@ void Player::Attack() {
 			if (!target)
 				continue;
 
-			Vector3 playerPos = GetWorldPosition();
+			Vector3 playerPos = GetWorldPosition() + Vector3(0,0,railCameraController->GetWorldPosition().z);
 			Vector3 enemyPos = target->GetWorldPosition();
 			// 敵キャラから自キャラへのベクトルを求める
 			Vector3 direction = enemyPos - playerPos;
@@ -110,7 +112,7 @@ void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle, Kama
 	sprite2DReticle_ = Sprite::Create(textureReticle, {640.0f, 360.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.5f, 0.5f});
 }
 
-void Player::Update(const KamataEngine::Camera& viewProjection) {
+void Player::Update(const KamataEngine::Camera& viewProjection, RailCameraController* railCameraController) {
 
 	POINT mousePosition;
 	// マウス座標(スクリーン座標)を取得する
@@ -197,7 +199,7 @@ void Player::Update(const KamataEngine::Camera& viewProjection) {
 	Rotate();
 
 	// 攻撃処理
-	Attack();
+	Attack(railCameraController);
 
 	for (PlayerBullet* bullet : bullets_) {
 		bullet->Update();

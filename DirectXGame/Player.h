@@ -10,6 +10,7 @@
 #include "Calculation.h"
 #include "missile.h"
 
+class RailCameraController;
 class LockOn;
 //class Enemy;
 
@@ -33,7 +34,7 @@ public:
 	/// <summary>
 	/// 攻撃
 	/// </summary>
-	void Attack();
+	void Attack(RailCameraController* railCameraController);
 
 	/// <summary>
 	/// 衝突判定
@@ -51,7 +52,7 @@ public:
 	/// <summary>
 	/// 更新
 	/// </summary>
-	void Update(const KamataEngine::Camera& viewProjection);
+	void Update(const KamataEngine::Camera& viewProjection, RailCameraController* railCameraController);
 
 	/// <summary>
 	/// 描画
@@ -65,19 +66,23 @@ public:
 
 	KamataEngine::Vector3 GetWorldPosition() const override;
 	KamataEngine::Vector3 GetWorldPosition3DReticle() const;
+	const KamataEngine::WorldTransform& GetWorldTransform() const { return worldTransform_; };
 	// 弾の取得
 	const std::list<PlayerBullet*>& GetBullets() const { return bullets_; }
 	const std::list<Missile*>& GetMissiles() const { return missiles_; }
 
 	KamataEngine::Vector2 GetReticlePos2D() const { return reticlePos2D; }
+	KamataEngine::Matrix4x4 GetMat() const { return worldTransform_.matWorld_; }
 
 	// 半径
 	static inline const float kRadius = 1.0f;
 
 	void SetParent(const KamataEngine::WorldTransform* parent) { worldTransform_.parent_ = parent; }
-	void SetParent3DReticle(const KamataEngine::WorldTransform* parent) { worldTransform3DReticle_.parent_ = parent; }
+	void SetPositionZ(const float& positionZ) { worldTransform_.translation_.z = positionZ; }
 
 	void SetLockOn(LockOn* lockOn) { lockOn_ = lockOn; }
+
+	void SetWorldPosition(KamataEngine::Vector3 position) { worldTransform_.translation_ = position; }
 
 private:
 	// ワールド変換データ
@@ -113,6 +118,5 @@ private:
 	KamataEngine::Vector2 reticlePos2D;
 
 	LockOn* lockOn_ = nullptr;
-
 };
 

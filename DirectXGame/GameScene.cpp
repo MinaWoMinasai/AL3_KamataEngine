@@ -84,7 +84,7 @@ void GameScene::Initialize() {
 	// 自キャラの生成
 	player_ = new Player();
 	// 自キャラの初期化
-	Vector3 playerPosition = {0.0f, 0.0f, 15.0f};
+	Vector3 playerPosition = {0.0f, 0.0f, 0.0f};
 	player_->Initialize(playerModel_, textureHandle_, playerBulletModel_, playerPosition, playerMissileModel_);
 
 	// 敵発生データの読み込み
@@ -114,10 +114,10 @@ void GameScene::Initialize() {
 	// レールカメラの生成と初期化
 	railCameraController_ = new RailCameraController();
 	railCameraController_->SetControlPoints(controlPoints_);
-	railCameraController_->Initialize(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), &viewProjection_);
+	railCameraController_->Initialize(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), &viewProjection_, player_);
 
 	// プレイヤーとレールカメラの親子関係を結ぶ
-	player_->SetParent(&railCameraController_->GetWorldTransform());
+	//player_->SetParent(&railCameraController_->GetWorldTransform());
 	
 	PrimitiveDrawer::GetInstance()->Initialize();
 	PrimitiveDrawer::GetInstance()->SetCamera(&viewProjection_);
@@ -140,7 +140,7 @@ void GameScene::Update() {
 
 		railCameraController_->Update();
 
-		viewProjection_.matView = railCameraController_->GetCamera()->matView;
+        viewProjection_.matView = railCameraController_->GetCamera()->matView;
 		viewProjection_.matProjection = railCameraController_->GetCamera()->matProjection;
 
 		// ビュープロジェクション行列の転送
@@ -158,7 +158,7 @@ void GameScene::Update() {
 	}
 #endif
 	// プレイヤーの更新
-	player_->Update(viewProjection_);
+	player_->Update(viewProjection_, railCameraController_);
 
 	// 敵発生コマンドの更新
 	UpdateEnemyPopCommands();

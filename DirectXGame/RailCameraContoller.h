@@ -4,13 +4,15 @@
 #include "WorldTransformClass.h"
 #include "Calculation.h"
 
+class Player;
+
 class RailCameraController {
 
 public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	void Initialize(const KamataEngine::Vector3& position, const KamataEngine::Vector3& rotation, KamataEngine::Camera* camera);
+	void Initialize(const KamataEngine::Vector3& position, const KamataEngine::Vector3& rotation, KamataEngine::Camera* camera, Player* player);
 
 	/// <summary>
 	/// 更新
@@ -22,6 +24,7 @@ public:
 
 	// ワールド座標を取得
 	const KamataEngine::WorldTransform& GetWorldTransform() const { return worldTransform_; }
+	KamataEngine::Vector3 GetWorldPosition() const;
 
 	void SetControlPoints(const std::vector<KamataEngine::Vector3>& points) { controlPoints_ = points; }
 
@@ -35,4 +38,6 @@ private:
 	std::vector<KamataEngine::Vector3> controlPoints_;
 
 	float t;
+
+	Player* player_;
 };

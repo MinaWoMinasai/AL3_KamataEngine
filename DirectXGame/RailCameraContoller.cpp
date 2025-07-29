@@ -1,8 +1,9 @@
 #include "RailCameraContoller.h"
 using namespace KamataEngine;
 using namespace MathUtility;
+#include "Player.h"
 
-void RailCameraController::Initialize(const KamataEngine::Vector3& position, const KamataEngine::Vector3& rotation, KamataEngine::Camera* camera) {
+void RailCameraController::Initialize(const KamataEngine::Vector3& position, const KamataEngine::Vector3& rotation, KamataEngine::Camera* camera, Player* player) {
 
 	// ワールドトランスフォームの初期設定
 	worldTransform_.Initialize();
@@ -10,13 +11,10 @@ void RailCameraController::Initialize(const KamataEngine::Vector3& position, con
 	worldTransform_.rotation_ = rotation;
 	// カメラの初期化
 	camera_ = camera;
+	player_ = player;
 }
 
 void RailCameraController::Update() {
-
-	ImGui::Begin("Camera");
-	ImGui::DragFloat("t", &t, 0.001f, 0.0f, 1.0f); // スプライン上の位置
-	ImGui::End();
 
 	t += 0.001f;
 	// リセット
@@ -35,11 +33,23 @@ void RailCameraController::Update() {
 	Vector3 rotation = VectorToRotation(dir);
 
 	// カメラのワールドトランスフォーム更新
-	worldTransform_.translation_ = eye;
+	Vector3 playerPosition = player_->GetWorldTransform().translation_;
+	worldTransform_.translation_ = eye + playerPosition;
 	worldTransform_.rotation_ = rotation;
 	WorldTransformUpdate(worldTransform_);
 
 	// ビュー行列を生成
 	camera_->matView = Inverse(worldTransform_.matWorld_);
 	
+}
+
+KamataEngine::Vector3 RailCameraController::GetWorldPosition() const {
+	// ワールド座標を入れる
+	Vector3 worldPos;
+	// ワールド行列の平行移動成分を取得(ワールド座標)
+	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1];
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
+
+	return worldPos;
 }

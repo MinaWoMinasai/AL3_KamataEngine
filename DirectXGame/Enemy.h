@@ -39,7 +39,7 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	void Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Vector3& position, KamataEngine::Model* modelBullet);
+	void Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Vector3& position, KamataEngine::Model* modelBullet, const std::string& behaviorName);
 
 	/// <summary>
 	/// 更新

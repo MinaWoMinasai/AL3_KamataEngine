@@ -2,6 +2,8 @@
 #include "ApproachState.h"
 #include "Player.h"
 #include "gameScene.h"
+#include "SniperState.h"
+#include "WaveState.h"
 using namespace KamataEngine;
 using namespace MathUtility;
 
@@ -62,7 +64,7 @@ void Enemy::OnCollision() {
 	isDead_ = true;
 }
 
-void Enemy::Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Vector3& position, KamataEngine::Model* modelBullet) {
+void Enemy::Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Vector3& position, KamataEngine::Model* modelBullet, const std::string& behaviorName) {
 
 	assert(model);
 	model_ = model;
@@ -73,8 +75,15 @@ void Enemy::Initialize(KamataEngine::Model* model, uint32_t textureHandle, Kamat
 	worldTransform_.translation_ = position;
 	worldTransform_.rotation_ = {0.0f, 0.0f, 0.0f};
 
-	SetState(std::make_unique<ApproachState>());
-
+	  if (behaviorName == "Approach") {
+		SetState(std::make_unique<ApproachState>());
+	} else if (behaviorName == "Sniper") {
+		SetState(std::make_unique<SniperState>());
+	} else if (behaviorName == "Wave") {
+		SetState(std::make_unique<WaveState>());
+	} else {
+		SetState(std::make_unique<ApproachState>()); // デフォルト
+	}
 	if (state_) {
 		state_->Initialize(*this);
 	}

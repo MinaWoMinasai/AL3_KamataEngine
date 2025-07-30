@@ -16,7 +16,7 @@ void RailCameraController::Initialize(const KamataEngine::Vector3& position, con
 
 void RailCameraController::Update() {
 
-	t += 0.001f;
+	//t += 0.001f;
 	// リセット
 	if (t > 1.0f) {
 		t = 0.0f;

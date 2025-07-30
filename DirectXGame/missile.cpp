@@ -42,7 +42,7 @@ void Missile::Update() {
 		Normalize(toEnemy);
 		Normalize(velocity_);
 		// 球面補間
-		velocity_ = Slerp(velocity_, toEnemy, 0.01f * kBulletSpeed);
+		velocity_ = Slerp(velocity_, toEnemy, 0.1f * kBulletSpeed);
 
 		// 進行方向に見た目を合わせる
 		worldTransform_.rotation_.y = std::atan2(velocity_.x, velocity_.z);

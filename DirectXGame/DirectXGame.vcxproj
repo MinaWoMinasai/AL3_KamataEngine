@@ -124,7 +124,9 @@
     <ClCompile Include="PlayerBullet.cpp" />
     <ClCompile Include="RailCameraContoller.cpp" />
     <ClCompile Include="Skydome.cpp" />
+    <ClCompile Include="SniperState.cpp" />
     <ClCompile Include="TimeCall.cpp" />
+    <ClCompile Include="WaveState.cpp" />
     <ClCompile Include="WorldTransformClass.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -220,7 +222,9 @@
     <ClInclude Include="PlayerBullet.h" />
     <ClInclude Include="RailCameraContoller.h" />
     <ClInclude Include="Skydome.h" />
+    <ClInclude Include="SniperState.h" />
     <ClInclude Include="TimeCall.h" />
+    <ClInclude Include="WaveState.h" />
     <ClInclude Include="WorldTransformClass.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

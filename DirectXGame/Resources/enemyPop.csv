@@ -1,11 +1,25 @@
-// コマンド,x,y,z
-WAIT,120,,
-POP,6,8,100
-WAIT,120,,
-POP,-6,8,105
-WAIT,120,,
-POP,12,-8, 110
-WAIT,120,,
-POP,-12,-8, 115
-WAIT,120,,
-POP,0,0,130
+// コマンド,x,y,z,ステート
+WAIT,60,,
+POP,6,8,90,Wave
+WAIT,60,,
+POP,-6,8,80,Sniper
+WAIT,60,,
+POP,12,-8,80,Sniper
+WAIT,60,,
+POP,-12,-8,65,Wave
+WAIT,60,,
+POP,0,0,100,
+WAIT,60,,
+POP,3,4,75,Wave
+WAIT,60,,
+POP,3,-4,80,Wave
+WAIT,60,,
+POP,-3,-4,85
+WAIT,60,,
+POP,-3,4,90,Wave
+WAIT,60,,
+POP,3,4,95,Wave
+WAIT,60,,
+POP,3,-4,100,Wave
+WAIT,60,,
+POP,-3,-4,105,Wave

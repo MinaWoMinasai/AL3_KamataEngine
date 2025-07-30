@@ -5,7 +5,6 @@ using namespace MathUtility;
 void LeaveState::Initialize(Enemy& enemy) { 
 	(void)enemy;
 
-
 }
 
 void LeaveState::Update(Enemy& enemy) {

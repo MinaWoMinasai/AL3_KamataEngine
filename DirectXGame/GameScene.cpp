@@ -321,10 +321,16 @@ void GameScene::UpdateEnemyPopCommands() {
 			// z座標
 			std::getline(line_stream, word, ',');
 			float z = (float)std::atof(word.c_str());
-
-			// 敵を発生させる
-			EnemyPop({x, y, z});
-
+			
+			std::string behavior;
+			if (std::getline(line_stream, behavior, ',')) {
+				// 空じゃなければ渡す
+				EnemyPop({x, y, z}, behavior);
+			} else {
+				// なければデフォルト
+				EnemyPop({x, y, z}, "Approach");
+			}
+			
 			// WAITコマンド
 		} else if (word.find("WAIT") == 0) {
 			std::getline(line_stream, word, ',');
@@ -342,7 +348,7 @@ void GameScene::UpdateEnemyPopCommands() {
 	}
 }
 
-void GameScene::EnemyPop(KamataEngine::Vector3 position) {
+void GameScene::EnemyPop(KamataEngine::Vector3 position, const std::string& behaviorName) {
 
 	DebugText::GetInstance()->ConsolePrintf("EnemyPop called. this = %p\n", this);
 
@@ -352,7 +358,7 @@ void GameScene::EnemyPop(KamataEngine::Vector3 position) {
 	enemy->SetPlayer(player_);
 	// 敵キャラの初期化
 	enemy->SetGameScene(this);
-	enemy->Initialize(enemyModel_, enemyTextureHandle_, position, enemyBulletModel_);
+	enemy->Initialize(enemyModel_, enemyTextureHandle_, position, enemyBulletModel_, behaviorName);
 	// リストに登録
 	enemies_.push_back(enemy);
 }

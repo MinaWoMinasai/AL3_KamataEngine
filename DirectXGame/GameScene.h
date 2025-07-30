@@ -66,7 +66,7 @@ public:
 	/// <summary>
 	/// 敵の発生
 	/// </summary>
-	void EnemyPop(KamataEngine::Vector3 position);
+	void EnemyPop(KamataEngine::Vector3 position, const std::string& behaviorName);
 
 private:
 

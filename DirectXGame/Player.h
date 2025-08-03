@@ -223,10 +223,34 @@ private:
 	static inline const float kAccumulate = (1.0f / 30.0f);
 	// 突進動作時間
 	static inline const float kRush = (1.0f / 5.0f);
+	float rush_ = (1.0f / 10.0f);
+	
+	// 溜めマックスと最小と増加速度
+	static inline const float kRushMax = (1.0f / 5.0f);
+	static inline const float kRushMin = (1.0f / 10.0f);
+	static inline const float kRushSpeed = (1.0f / 50.0f);
+
 	// 余韻動作時間
 	static inline const float kAfterGraw = (1.0f / 30.0f);
 	// 攻撃時の速度
 	static inline const float attackVelocity = 0.5f;
+
+	// 突撃回数
+	uint32_t attackCount = 2;
+
+	// 突撃最大回数
+	static inline const uint32_t kAttackMax = 2;
+
+	// 突撃が復活するまで
+	static inline const uint32_t kAttackResetTimer = 120;
+
+	// 突撃復活タイマー
+	uint32_t attackResetTimer = 0;
+
+	// 溜めているか
+	bool isTame = false;
+
+
 
 };
 

@@ -415,13 +415,24 @@ void Player::BehaviorAttackInitialize() {
 
 void Player::BehaviorRootUpdate() {
 
-	// 攻撃キーを押したら
-	if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
-	
-		// 攻撃ビヘイビアをリクエスト
-		behavierRequest_ = Behavior::kAttack;
+	// 溜めの復活
+	if (attackCount < kAttackMax) {
+		// カウント
+		attackResetTimer++;
+		if (attackResetTimer >= kAttackResetTimer) {
+			attackCount++;
+			attackResetTimer = 0;
+		}
 	}
 
+	// 攻撃キーを押して溜めがあったら
+	if (attackCount > 0) {
+		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+
+			// 攻撃ビヘイビアをリクエスト
+			behavierRequest_ = Behavior::kAttack;
+		}
+	}
 	Move();
 
 	// 衝突判定を初期化
@@ -453,21 +464,37 @@ void Player::BehaviorAttackUpdate() {
 	switch (attackPhase_) {
 	case Player::AttackPhase::accumulate:
 	default:
-		t = static_cast<float>(attackTimer) / kAccumulate;
-
-		// イージング補間値を取得
-		easedT = easeOutCubic(t);
-
-		// 開始角度から終了角度へイージング補間
-		worldTransform_.scale_.z = std::lerp(1.0f, 0.3f, easedT);
-		worldTransform_.scale_.y = std::lerp(1.0f, 1.6f, easedT);
-
-		// 全身動作へ平行
-		if (attackTimer >= kAccumulate) {
-
+		
+		// 押している間溜める
+		if (Input::GetInstance()->PushKey(DIK_SPACE)) {
+			rush_ += kRushSpeed;
+		} else {
 			attackPhase_ = AttackPhase::rush;
 			attackTimer = 0; // カウンターをリセット
 		}
+
+		// 溜めが最大になっても遷移
+		if (rush_ >= kRushMax) {
+			attackPhase_ = AttackPhase::rush;
+			attackTimer = 0; // カウンターをリセット
+		}
+
+		
+		//t = static_cast<float>(attackTimer) / kAccumulate;
+
+		// イージング補間値を取得
+		//easedT = easeOutCubic(t);
+
+		// 開始角度から終了角度へイージング補間
+		//worldTransform_.scale_.z = std::lerp(1.0f, 0.3f, easedT);
+		//worldTransform_.scale_.y = std::lerp(1.0f, 1.6f, easedT);
+
+		// 全身動作へ平行
+		//if (attackTimer >= kAccumulate) {
+
+			//attackPhase_ = AttackPhase::rush;
+			//attackTimer = 0; // カウンターをリセット
+		//}
 
 		break;
 	case Player::AttackPhase::rush:
@@ -478,7 +505,7 @@ void Player::BehaviorAttackUpdate() {
 			velocity.x = -attackVelocity;
 		}
 
-		t = static_cast<float>(attackTimer) / kRush;
+		t = static_cast<float>(attackTimer) / rush_;
 
 		// イージング補間値を取得
 		easedT = easeOutCubic(t);
@@ -488,7 +515,7 @@ void Player::BehaviorAttackUpdate() {
 		worldTransform_.scale_.y = std::lerp(1.6f, 0.7f, easedT);
 
 		// 全身動作へ平行
-		if (attackTimer >= kRush) {
+		if (attackTimer >= rush_) {
 
 			attackPhase_ = AttackPhase::afterglow;
 			attackTimer = 0;
@@ -509,6 +536,9 @@ void Player::BehaviorAttackUpdate() {
 		if (attackTimer >= kAfterGraw) {
 			attackPhase_ = AttackPhase::accumulate;
 			behavierRequest_ = Behavior::kRoot;
+			// 突撃回数減少とリセット
+			attackCount--;
+			rush_ = kRushMin;
 		}
 
 		break;
@@ -537,6 +567,10 @@ void Player::BehaviorAttackUpdate() {
 }
 
 void Player::Update() {
+
+	ImGui::Begin("p");
+	ImGui::DragFloat("a", &rush_);
+	ImGui::End();
 
 	if (behavierRequest_ != Behavior::kUnkown) {
 	

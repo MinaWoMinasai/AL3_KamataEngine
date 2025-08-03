@@ -208,7 +208,7 @@ private:
 	// ダッシュタイマー
 	float attackTimer = 0.0f;
 
-	static inline const float kAttackTimer = 2.0f;
+	static inline const float kAttackTimer = 3.0f;
 
 	// ふるまい
 	Behavior behavior_ = Behavior::kRoot;
@@ -222,7 +222,7 @@ private:
 	// 溜め動作時間
 	static inline const float kAccumulate = (1.0f / 30.0f);
 	// 突進動作時間
-	static inline const float kRush = (1.0f / 10.0f);
+	static inline const float kRush = (1.0f / 5.0f);
 	// 余韻動作時間
 	static inline const float kAfterGraw = (1.0f / 30.0f);
 	// 攻撃時の速度

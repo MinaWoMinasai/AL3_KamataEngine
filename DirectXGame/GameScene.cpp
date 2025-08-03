@@ -10,7 +10,15 @@ GameScene::GameScene() {}
 GameScene::~GameScene() {
 	delete model_;
 	delete modelSkydome_;
+	delete modelHitEffect_;
+	delete modelBlock_;
+	delete playerAttackModel_;
+	delete modelEnemy_;
+	delete modelDeathParticle_;
+	delete modelTitleText_;
+	
 	delete player_;
+	
 	for (Enemy*& enemy : enemies_) {
 		delete enemy;
 	}
@@ -20,14 +28,14 @@ GameScene::~GameScene() {
 	}
 	hitEffects_.clear();
 
-	delete modelBlock_;
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
 			delete worldTransformBlock;
 		}
 	}
 	worldTransformBlocks_.clear();
-	delete modelHitEffect_;
+	
+	delete skydome_;
 	delete debugCamera_;
 	delete mapChipField_;
 	delete cameraContoroller_;

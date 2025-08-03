@@ -1,6 +1,8 @@
 #include "Fade.h"
 using namespace KamataEngine;
 
+Fade::~Fade() { delete sprite_; }
+
 void Fade::Initialize() {
 
 	// ファイル名を指定してテクスチャを読み込む

@@ -12,6 +12,8 @@ public:
 		FadeOut,
 	};
 
+	~Fade();
+
 	/// <summary>
 	/// 初期化
 	/// </summary>

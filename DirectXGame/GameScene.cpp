@@ -34,6 +34,20 @@ GameScene::~GameScene() {
 		}
 	}
 	worldTransformBlocks_.clear();
+
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformNeedles_) {
+		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+			delete worldTransformBlock;
+		}
+	}
+	worldTransformNeedles_.clear();
+
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformGoals_) {
+		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+			delete worldTransformBlock;
+		}
+	}
+	worldTransformGoals_.clear();
 	
 	delete skydome_;
 	delete debugCamera_;
@@ -51,20 +65,38 @@ void GameScene::GeneratteBlocks() {
 	// 要素数を変更する
 	// 列数を設定(縦設定のブロック数)
 	worldTransformBlocks_.resize(numBlockVirtical);
+	worldTransformNeedles_.resize(numBlockVirtical);
+	worldTransformGoals_.resize(numBlockVirtical);
 	for (uint32_t i = 0; i < numBlockVirtical; ++i) {
 
 		// 1列の要素数を設定(横方向のブロック数)
 		worldTransformBlocks_[i].resize(numBlockHorizontal);
+		worldTransformNeedles_[i].resize(numBlockHorizontal);
+		worldTransformGoals_[i].resize(numBlockHorizontal);
 	}
 	// ブロックの生成
 	for (uint32_t i = 0; i < numBlockVirtical; ++i) {
 		for (uint32_t j = 0; j < numBlockHorizontal; ++j) {
 			
-			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kBlock) {
+			
+			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kBlock
+				) {
 				WorldTransform* worldTransform = new WorldTransform();
 				worldTransform->Initialize();
 				worldTransformBlocks_[i][j] = worldTransform;
 				worldTransformBlocks_[i][j]->translation_ = mapChipField_->GetMapChipPositionByIndex(j, i);
+			}
+			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kNiddle) {
+				WorldTransform* worldTransform = new WorldTransform();
+				worldTransform->Initialize();
+				worldTransformNeedles_[i][j] = worldTransform;
+				worldTransformNeedles_[i][j]->translation_ = mapChipField_->GetMapChipPositionByIndex(j, i);
+			}
+			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kGoal) {
+				WorldTransform* worldTransform = new WorldTransform();
+				worldTransform->Initialize();
+				worldTransformGoals_[i][j] = worldTransform;
+				worldTransformGoals_[i][j]->translation_ = mapChipField_->GetMapChipPositionByIndex(j, i);
 			}
 		}
 	}
@@ -116,7 +148,7 @@ void GameScene::ChengePhase() {
 	case GameScene::Phase::kPley:
 
 		// プレイヤーがデスしたか
-		if (player_->IsDead()) {
+		if (player_->IsClear()) {
 		
 			// 死亡演出に切り替え
 			phase_ = Phase::kDeath;
@@ -128,6 +160,28 @@ void GameScene::ChengePhase() {
 			deathParticles_->Initialize(modelDeathParticle_, &camera_, deathParticlesPosition);
 
 		}
+
+		if (player_->IsDead()) {
+
+			// 自キャラの座標を取得
+			const Vector3& deathParticlesPosition = player_->GetWorldPosition();
+
+			// 自キャラの位置にデスパーティクルを生成
+			deathParticles_ = new DeathParticles;
+			deathParticles_->Initialize(modelDeathParticle_, &camera_, deathParticlesPosition);
+			//if (player_->IsDead()) {
+				//if (deathParticles_ && deathParticles_->IsFinished()) {
+					// 座標をマップチップ番号で指定
+					Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(3, 13);
+
+					// 自キャラの初期化
+					player_->Initialize(model_, playerAttackModel_, &camera_, playerPosition);
+
+					player_->SetMapChipField(mapChipField_);
+				//}
+		}
+		// 
+
 
 		break;
 	case GameScene::Phase::kDeath:
@@ -158,6 +212,8 @@ void GameScene::Initialize() {
 	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle", true); 
 	modelBlock_ = Model::CreateFromOBJ("block", true);
 	modelHitEffect_ = Model::CreateFromOBJ("hitEffect", true);
+	modelNiddle = Model::CreateFromOBJ("needle", true);
+	modelGoal = Model::CreateFromOBJ("goal", true);
 	HitEffect::SetModel(modelHitEffect_);
 	HitEffect::SetCamera(&camera_);
 
@@ -278,7 +334,44 @@ void GameScene::Update() {
 				worldTransformBlock->TransferMatrix();
 			}
 		}
+		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformNeedles_) {
+			for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
 
+				if (!worldTransformBlock)
+					continue;
+
+				Matrix4x4 scaleMatrix = MakeScaleMatrix(worldTransformBlock->scale_);
+				Matrix4x4 translateMatrix = MakeTranslateMatrix(worldTransformBlock->translation_);
+				Matrix4x4 rotateXMatrix = MakeRotateXMatrix(worldTransformBlock->rotation_.x);
+				Matrix4x4 rotateYMatrix = MakeRotateYMatrix(worldTransformBlock->rotation_.y);
+				Matrix4x4 rotateZMatrix = MakeRotateZMatrix(worldTransformBlock->rotation_.z);
+				Matrix4x4 affineMatrix = scaleMatrix * rotateXMatrix * rotateYMatrix * rotateZMatrix * translateMatrix;
+
+				worldTransformBlock->matWorld_ = affineMatrix;
+
+				// 定数バッファに転送
+				worldTransformBlock->TransferMatrix();
+			}
+		}
+		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformGoals_) {
+			for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+
+				if (!worldTransformBlock)
+					continue;
+
+				Matrix4x4 scaleMatrix = MakeScaleMatrix(worldTransformBlock->scale_);
+				Matrix4x4 translateMatrix = MakeTranslateMatrix(worldTransformBlock->translation_);
+				Matrix4x4 rotateXMatrix = MakeRotateXMatrix(worldTransformBlock->rotation_.x);
+				Matrix4x4 rotateYMatrix = MakeRotateYMatrix(worldTransformBlock->rotation_.y);
+				Matrix4x4 rotateZMatrix = MakeRotateZMatrix(worldTransformBlock->rotation_.z);
+				Matrix4x4 affineMatrix = scaleMatrix * rotateXMatrix * rotateYMatrix * rotateZMatrix * translateMatrix;
+
+				worldTransformBlock->matWorld_ = affineMatrix;
+
+				// 定数バッファに転送
+				worldTransformBlock->TransferMatrix();
+			}
+		}
 		// 当たり判定の更新
 		CheakAllCollisions();
 
@@ -304,14 +397,19 @@ void GameScene::Update() {
 	case GameScene::Phase::kDeath:
 	case GameScene::Phase::kFadeOut:
 		
+		
+	
 		// ゲームシーン終了
-		if (deathParticles_ && deathParticles_->IsFinished()) {
+		//if (deathParticles_ && deathParticles_->IsFinished()) {
 			if (phase_ == Phase::kDeath) {
 				fade_->Start(Fade::Status::FadeOut, kDuration);
 				phase_ = Phase::kFadeOut;
 			}
-		}
-
+		//}
+		
+		
+		
+		
 		// 天球の描画
 		skydome_->Update();
 
@@ -371,6 +469,45 @@ void GameScene::Update() {
 			}
 		}
 
+		// ブロックの更新
+		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformNeedles_) {
+			for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+
+				if (!worldTransformBlock)
+					continue;
+
+				Matrix4x4 scaleMatrix = MakeScaleMatrix(worldTransformBlock->scale_);
+				Matrix4x4 translateMatrix = MakeTranslateMatrix(worldTransformBlock->translation_);
+				Matrix4x4 rotateXMatrix = MakeRotateXMatrix(worldTransformBlock->rotation_.x);
+				Matrix4x4 rotateYMatrix = MakeRotateYMatrix(worldTransformBlock->rotation_.y);
+				Matrix4x4 rotateZMatrix = MakeRotateZMatrix(worldTransformBlock->rotation_.z);
+				Matrix4x4 affineMatrix = scaleMatrix * rotateXMatrix * rotateYMatrix * rotateZMatrix * translateMatrix;
+
+				worldTransformBlock->matWorld_ = affineMatrix;
+
+				// 定数バッファに転送
+				worldTransformBlock->TransferMatrix();
+			}
+		}
+		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformGoals_) {
+			for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+
+				if (!worldTransformBlock)
+					continue;
+
+				Matrix4x4 scaleMatrix = MakeScaleMatrix(worldTransformBlock->scale_);
+				Matrix4x4 translateMatrix = MakeTranslateMatrix(worldTransformBlock->translation_);
+				Matrix4x4 rotateXMatrix = MakeRotateXMatrix(worldTransformBlock->rotation_.x);
+				Matrix4x4 rotateYMatrix = MakeRotateYMatrix(worldTransformBlock->rotation_.y);
+				Matrix4x4 rotateZMatrix = MakeRotateZMatrix(worldTransformBlock->rotation_.z);
+				Matrix4x4 affineMatrix = scaleMatrix * rotateXMatrix * rotateYMatrix * rotateZMatrix * translateMatrix;
+
+				worldTransformBlock->matWorld_ = affineMatrix;
+
+				// 定数バッファに転送
+				worldTransformBlock->TransferMatrix();
+			}
+		}
 		break;
 	
 	}
@@ -378,8 +515,12 @@ void GameScene::Update() {
 
 #ifdef _DEBUG
 	if (Input::GetInstance()->TriggerKey(DIK_LSHIFT)) {
-		isDebugCameraActive_ = true;
-	}
+		if (isDebugCameraActive_) {
+			isDebugCameraActive_ = false;
+		} else {
+			isDebugCameraActive_ = true;
+		}
+	} 
 #endif
 
 }
@@ -401,11 +542,23 @@ void GameScene::Draw() {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
 			if (!worldTransformBlock)
 				continue;
-
 			modelBlock_->Draw(*worldTransformBlock, camera_);
 		}
 	}
-
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformNeedles_) {
+		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+			if (!worldTransformBlock)
+				continue;
+			modelNiddle->Draw(*worldTransformBlock, camera_);
+		}
+	}
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformGoals_) {
+		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+			if (!worldTransformBlock)
+				continue;
+			modelGoal->Draw(*worldTransformBlock, camera_);
+		}
+	}
 	// 3Dモデル描画後処理
 	Model::PostDraw();
 

@@ -2,6 +2,8 @@
 #include "cmath"
 #include "Player.h"
 #include "GameScene.h"
+#include <cmath>
+#include <cassert>
 using namespace KamataEngine;
 using namespace MathUtility;
 

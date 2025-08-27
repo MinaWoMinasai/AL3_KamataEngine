@@ -1,4 +1,6 @@
 #include "DeathParticles.h"
+#include <cmath>
+#include <cassert>
 using namespace KamataEngine;
 using namespace MathUtility;
 

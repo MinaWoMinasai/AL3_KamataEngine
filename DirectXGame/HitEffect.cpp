@@ -1,4 +1,6 @@
 #include "HitEffect.h"
+#include <cmath>
+#include <cassert>
 using namespace KamataEngine;
 
 // 静的メンバ変数の実体

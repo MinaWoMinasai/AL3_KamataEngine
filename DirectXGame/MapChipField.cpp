@@ -2,6 +2,8 @@
 #include <map>
 #include <fstream>
 #include <sstream>
+#include <cmath>
+#include <cassert>
 using namespace KamataEngine;
 
 namespace {
@@ -9,6 +11,8 @@ namespace {
 std::unordered_map<std::string, MapChipType> mapChipTable = {
     {"0", MapChipType::kBlank},
     {"1", MapChipType::kBlock},
+    {"2", MapChipType::kNiddle},
+    {"3", MapChipType::kGoal},
 };
 
 }

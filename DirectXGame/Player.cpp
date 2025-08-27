@@ -4,6 +4,12 @@
 using namespace KamataEngine;
 using namespace MathUtility;
 
+Player::~Player() { 
+	delete arrow_; 
+	delete arrow2_;
+	delete gide_;
+}
+
 void Player::Initialize(KamataEngine::Model* model, KamataEngine::Model* modelAttack, KamataEngine::Camera* camera, const KamataEngine::Vector3& position) {
 
 	// NULLポインタチェック
@@ -23,6 +29,21 @@ void Player::Initialize(KamataEngine::Model* model, KamataEngine::Model* modelAt
 
 	worldTransform_.translation_ = position;
 	worldTransform_.rotation_.y = std::numbers::pi_v<float>;
+	isDead = false;
+
+	// ファイル名を指定してテクスチャを読み込む
+	textureHandle_ = TextureManager::Load("arrow.png");
+	textureHandleG_ = TextureManager::Load("gide.png");
+
+	arrow_ = Sprite::Create(textureHandle_, {150.0f, 230.0f});
+	arrow2_ = Sprite::Create(textureHandle_, {250.0f, 230.0f});
+	gide_ = Sprite::Create(textureHandleG_, {0.0f, 0.0f});
+	arrow_->SetSize(Vector2(100, 100));
+	arrow_->SetColor(Vector4(0, 0, 0, 1));
+	arrow2_->SetSize(Vector2(100, 100));
+	arrow2_->SetColor(Vector4(0, 0, 0, 1));
+	gide_->SetSize(Vector2(512, 512));
+	gide_->SetColor(Vector4(0, 0, 0, 1));
 }
 
 KamataEngine::Vector3 Player::CornerPositon(const KamataEngine::Vector3& center, Corner corner) {
@@ -85,6 +106,7 @@ void Player::Move() {
 		if (Input::GetInstance()->PushKey(DIK_UP)) {
 			// ジャンプ処理
 			velocity_ += Vector3(0, kJumpAcceleration, 0);
+			velocity_.x *= 0.5f;
 		}
 		// 空中
 	} else {
@@ -144,6 +166,12 @@ void Player::CollisionTop(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kBlock && mapChipTypeNext != MapChipType::kBlock) {
 		hit = true;
 	}
+	if (mapChipType == MapChipType::kNiddle && mapChipTypeNext != MapChipType::kNiddle) {
+		isDead = true;
+	}
+	if (mapChipType == MapChipType::kGoal && mapChipTypeNext != MapChipType::kGoal) {
+		isClear = true;
+	}
 	// 右上の判定
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightTop]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
@@ -151,7 +179,12 @@ void Player::CollisionTop(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kBlock && mapChipTypeNext != MapChipType::kBlock) {
 		hit = true;
 	}
-
+	if (mapChipType == MapChipType::kNiddle && mapChipTypeNext != MapChipType::kNiddle) {
+		isDead = true;
+	}
+	if (mapChipType == MapChipType::kGoal && mapChipTypeNext != MapChipType::kGoal) {
+		isClear = true;
+	}
 	// ブロックにヒット？
 	if (hit) {
 		// めり込みを排除する方向に移動量を設定する
@@ -197,6 +230,13 @@ void Player::CollisionBottom(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kBlock && mapChipTypeNext != MapChipType::kBlock) {
 		hit = true;
 	}
+
+	if (mapChipType == MapChipType::kNiddle && mapChipTypeNext != MapChipType::kNiddle) {
+		isDead = true;
+	}
+	if (mapChipType == MapChipType::kGoal && mapChipTypeNext != MapChipType::kGoal) {
+		isClear = true;
+	}
 	// 右下の判定
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom] + Vector3(0, -kLandingAdjust, 0));
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
@@ -204,7 +244,12 @@ void Player::CollisionBottom(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kBlock && mapChipTypeNext != MapChipType::kBlock) {
 		hit = true;
 	}
-
+	if (mapChipType == MapChipType::kNiddle && mapChipTypeNext != MapChipType::kNiddle) {
+		isDead = true;
+	}
+	if (mapChipType == MapChipType::kGoal && mapChipTypeNext != MapChipType::kGoal) {
+		isClear = true;
+	}
 	// ブロックにヒット？
 	if (hit) {
 		// めり込みを排除する方向に移動量を設定する
@@ -248,6 +293,12 @@ void Player::CollisionRight(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kBlock && mapChipTypeNext != MapChipType::kBlock) {
 		hit = true;
 	}
+	if (mapChipType == MapChipType::kNiddle && mapChipTypeNext != MapChipType::kNiddle) {
+		isDead = true;
+	}
+	if (mapChipType == MapChipType::kGoal && mapChipTypeNext != MapChipType::kGoal) {
+		isClear = true;
+	}
 	// 右下の判定
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
@@ -255,7 +306,13 @@ void Player::CollisionRight(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kBlock && mapChipTypeNext != MapChipType::kBlock) {
 		hit = true;
 	}
+	if (mapChipType == MapChipType::kNiddle && mapChipTypeNext != MapChipType::kNiddle) {
+		isDead = true;
+	}
 
+	if (mapChipType == MapChipType::kGoal && mapChipTypeNext != MapChipType::kGoal) {
+		isClear = true;
+	}
 	// ブロックにヒット？
 	if (hit) {
 		// めり込みを排除する方向に移動量を設定する
@@ -300,6 +357,12 @@ void Player::CollisionLeft(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kBlock && mapChipTypeNext != MapChipType::kBlock) {
 		hit = true;
 	}
+	if (mapChipType == MapChipType::kNiddle && mapChipTypeNext != MapChipType::kNiddle) {
+		isDead = true;
+	}
+	if (mapChipType == MapChipType::kGoal && mapChipTypeNext != MapChipType::kGoal) {
+		isClear = true;
+	}
 	// 左下の判定
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
@@ -307,7 +370,12 @@ void Player::CollisionLeft(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kBlock && mapChipTypeNext != MapChipType::kBlock) {
 		hit = true;
 	}
-
+	if (mapChipType == MapChipType::kNiddle && mapChipTypeNext != MapChipType::kNiddle) {
+		isDead = true;
+	}
+	if (mapChipType == MapChipType::kGoal && mapChipTypeNext != MapChipType::kGoal) {
+		isClear = true;
+	}
 	// ブロックにヒット？
 	if (hit) {
 
@@ -334,7 +402,9 @@ void Player::SwitchLanding(const CollisionMapInfo& info) {
 
 		// ジャンプ開始
 		if (velocity_.y > 0.0f) {
-			onGround_ = false;
+			//if (attackPhase_ != AttackPhase::accumulate) {
+				onGround_ = false;
+			//}
 		}
 
 		std::array<Vector3, kNumCorner> positionsNew;
@@ -347,18 +417,29 @@ void Player::SwitchLanding(const CollisionMapInfo& info) {
 		bool hit = false;
 		// 左下の判定
 		MapChipField::IndexSet indexSet;
-		indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom]);
+		indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom] + Vector3(0, -kLandingAdjust, 0));
 		mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 		if (mapChipType == MapChipType::kBlock) {
 			hit = true;
+		}
+		if (mapChipType == MapChipType::kNiddle) {
+			isDead = true;
+		}
+		if (mapChipType == MapChipType::kGoal) {
+			isClear = true;
 		}
 		// 右下の判定
-		indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom]);
+		indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom] + Vector3(0, -kLandingAdjust, 0));
 		mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 		if (mapChipType == MapChipType::kBlock) {
 			hit = true;
 		}
-
+		if (mapChipType == MapChipType::kNiddle) {
+			isDead = true;
+		}
+		if (mapChipType == MapChipType::kGoal) {
+			isClear = true;
+		}
 		// 落下開始
 		if (!hit) {
 			// 空中状態に切り替える
@@ -375,6 +456,9 @@ void Player::SwitchLanding(const CollisionMapInfo& info) {
 			velocity_.x *= (1.0f - kAttenuationLanding);
 			// Y速度をゼロにする
 			velocity_.y = 0.0f;
+			// ジャンプ回数リセット
+			attackCount = kAttackMax;
+			rush_ = kRushMin;
 		}
 	}
 }
@@ -396,6 +480,9 @@ void Player::Collision(CollisionMapInfo& info) {
 void Player::CollisionMove(const CollisionMapInfo& info) {
 	// 移動
 	worldTransform_.translation_ += info.velocity;
+	// スプライトの場所移動
+	//arrow_->SetPosition(Vector2(worldTransform_.translation_.x, worldTransform_.translation_.y));
+	//arrow_->SetTextureRect(Vector2(worldTransform_.translation_.x, worldTransform_.translation_.y), Vector2(512.0f, 512.0f));
 }
 
 void Player::CollisionUpdate(const CollisionMapInfo& info) {
@@ -452,19 +539,53 @@ void Player::BehaviorRootUpdate() {
 }
 
 void Player::BehaviorAttackUpdate() {
+	
+	if (Input::GetInstance()->PushKey(DIK_RIGHT) || Input::GetInstance()->PushKey(DIK_LEFT)) {
 
+		// 左右処理
+		if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
+
+			if (lrDirection_ != LRDirection::kRight) {
+				lrDirection_ = LRDirection::kRight;
+				turnFirstRotationY_ = worldTransform_.rotation_.y;
+				turnTimer_ = 0.1f;
+			}
+		} else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
+
+			if (lrDirection_ != LRDirection::kLeft) {
+				lrDirection_ = LRDirection::kLeft;
+				turnFirstRotationY_ = worldTransform_.rotation_.y;
+				turnTimer_ = 0.1f;
+			}
+		}
+	}
 	// 攻撃動作用の速度
 	Vector3 velocity{};
+
+	const float kVel = 0.15f;
 
 	attackTimer += 1.0f / 60.0f;
 
 	float t;
 	float easedT;
 
+	const float waveAmplitude = 0.2f;  // 振幅（どれくらい上下するか）
+	const float waveFrequency = 20.0f; // 周波数（どれくらいの速さで揺れるか）
+
 	switch (attackPhase_) {
 	case Player::AttackPhase::accumulate:
 	default:
+
+		// 時間に応じたサイン波で上下に動く
 		
+
+		// 敵自身が持つ経過時間を使う（なければ加える必要あり）
+		//float t = enemy.GetTimer(); // Enemyに timer_ が必要
+
+		t = attackTimer;
+
+		worldTransform_.scale_.y = 0.8f - std::sin(t * waveFrequency) * waveAmplitude;
+
 		// 押している間溜める
 		if (Input::GetInstance()->PushKey(DIK_SPACE)) {
 			rush_ += kRushSpeed;
@@ -479,33 +600,26 @@ void Player::BehaviorAttackUpdate() {
 			attackTimer = 0; // カウンターをリセット
 		}
 
+		// ゆっくり落とす
+		velocity.y = -0.02f;
 		
-		//t = static_cast<float>(attackTimer) / kAccumulate;
-
-		// イージング補間値を取得
-		//easedT = easeOutCubic(t);
-
-		// 開始角度から終了角度へイージング補間
-		//worldTransform_.scale_.z = std::lerp(1.0f, 0.3f, easedT);
-		//worldTransform_.scale_.y = std::lerp(1.0f, 1.6f, easedT);
-
-		// 全身動作へ平行
-		//if (attackTimer >= kAccumulate) {
-
-			//attackPhase_ = AttackPhase::rush;
-			//attackTimer = 0; // カウンターをリセット
-		//}
-
 		break;
 	case Player::AttackPhase::rush:
 
-		if (lrDirection_ == LRDirection::kRight) {
-			velocity.x = +attackVelocity;
-		} else if (lrDirection_ == LRDirection::kLeft) {
-			velocity.x = -attackVelocity;
-		}
-
 		t = static_cast<float>(attackTimer) / rush_;
+
+		if (lrDirection_ == LRDirection::kRight) {
+			velocity.x = +kAttackVelocity * (1.0f - t);
+		} else if (lrDirection_ == LRDirection::kLeft) {
+			velocity.x = -kAttackVelocity * (1.0f - t);
+		}
+		
+		// 上下操作で少し移動
+		if (Input::GetInstance()->PushKey(DIK_UP)) {
+			velocity.y = +(kVel);
+		} else if (Input::GetInstance()->PushKey(DIK_DOWN)) { 
+			velocity.y = -(kVel);
+		}
 
 		// イージング補間値を取得
 		easedT = easeOutCubic(t);
@@ -544,6 +658,31 @@ void Player::BehaviorAttackUpdate() {
 		break;
 	}
 
+	// 旋回
+	if (turnTimer_ > 0.0f) {
+
+		// 旋回タイマーをカウントダウンする
+		turnTimer_ -= 1.0f / 60.0f;
+
+		// 旋回制御
+		// 左右の自キャラ角度テーブル
+		float destinationRotationYTable[] = {std::numbers::pi_v<float>, std::numbers::pi_v<float> * 2.0f};
+		// 状況にあった角度を取得する
+		float destinationRotationY = destinationRotationYTable[static_cast<uint32_t>(lrDirection_)];
+
+		// 正規化された時間（0.0～1.0）を計算
+		float rT = 1.0f - (turnTimer_ / kTimeTurn);
+
+		// イージング補間値を取得
+		float easedRT = easeInOutCubic(rT);
+
+		// 開始角度から終了角度へイージング補間
+		float currentRotationY = turnFirstRotationY_ + (destinationRotationY - turnFirstRotationY_) * easedRT;
+
+		// 自キャラの角度を設定する
+		worldTransform_.rotation_.y = currentRotationY;
+	}
+
 	// 衝突判定を初期化
 	CollisionMapInfo collisionMapInfo;
 	// 移動量に速度の値をコピー
@@ -567,10 +706,6 @@ void Player::BehaviorAttackUpdate() {
 }
 
 void Player::Update() {
-
-	ImGui::Begin("p");
-	ImGui::DragFloat("a", &rush_);
-	ImGui::End();
 
 	if (behavierRequest_ != Behavior::kUnkown) {
 	
@@ -619,6 +754,19 @@ void Player::Draw() {
 	// 3Dモデル描画後処理
 	Model::PostDraw();
 
+	if (attackCount >= 1) {
+		Sprite::PreDraw(dxCommon->GetCommandList());
+		arrow_->Draw();
+		Sprite::PostDraw();
+	}
+	if (attackCount >= 2) {
+		Sprite::PreDraw(dxCommon->GetCommandList());
+		arrow2_->Draw();
+		Sprite::PostDraw();
+	}
+	Sprite::PreDraw(dxCommon->GetCommandList());
+	gide_->Draw();
+	Sprite::PostDraw();
 }
 
 Vector3 Player::GetWorldPosition(){ 

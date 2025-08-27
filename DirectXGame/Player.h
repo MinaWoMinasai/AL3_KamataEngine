@@ -21,6 +21,8 @@ class Player {
 
 public:
 
+	~Player();
+
 	enum Corner {
 		kRightBottom,
 		kLeftBottom,
@@ -128,6 +130,13 @@ public:
 	// デスフラグのgetter
 	bool IsDead() const { return isDead; }
 
+	bool IsClear() const { return isClear; }
+
+	// プレイヤーの突進タイマー
+	uint32_t GetPlayerAttackTimer;
+	// プレイヤーの突撃カウント
+	uint32_t GetPlayerAttackCount;
+
 private:
 
 	enum class LRDirection {
@@ -176,15 +185,15 @@ private:
 	// 旋回時間<秒>
 	static inline const float kTimeTurn = 1.0f;
 	// 最大速度
-	static inline const float kLimitRunSpeed = 0.5f;
+	static inline const float kLimitRunSpeed = 0.3f;
 	// 接地状態フラグ
 	bool onGround_ = true;
 	// 重力加速度(下方向)
-	static inline const float kGravityAcceleration = 0.03f;
+	static inline const float kGravityAcceleration = 0.01f;
 	// 最大落下速度(下方向)
-	static inline const float kLimitFailSpeed = 3.0f;
+	static inline const float kLimitFailSpeed = 0.8f;
 	// ジャンプ初速(上方向)
-	static inline const float kJumpAcceleration = 0.5f;
+	static inline const float kJumpAcceleration = 0.35f;
 
 	// マップチップによるフィールド
 	MapChipField* mapChipField_ = nullptr;
@@ -223,17 +232,20 @@ private:
 	static inline const float kAccumulate = (1.0f / 30.0f);
 	// 突進動作時間
 	static inline const float kRush = (1.0f / 5.0f);
-	float rush_ = (1.0f / 10.0f);
+	
 	
 	// 溜めマックスと最小と増加速度
-	static inline const float kRushMax = (1.0f / 5.0f);
+	static inline const float kRushMax = (1.0f / 2.0f);
 	static inline const float kRushMin = (1.0f / 10.0f);
-	static inline const float kRushSpeed = (1.0f / 50.0f);
+	static inline const float kRushSpeed = (1.0f / 35.0f);
+	float rush_ = kRushMin;
 
 	// 余韻動作時間
-	static inline const float kAfterGraw = (1.0f / 30.0f);
+	static inline const float kAfterGraw = (1.0f / 15.0f);
 	// 攻撃時の速度
-	static inline const float attackVelocity = 0.5f;
+	static inline const float kAttackVelocity = 0.55f;
+	float attackVelocity = kAttackVelocity;
+
 
 	// 突撃回数
 	uint32_t attackCount = 2;
@@ -242,7 +254,7 @@ private:
 	static inline const uint32_t kAttackMax = 2;
 
 	// 突撃が復活するまで
-	static inline const uint32_t kAttackResetTimer = 120;
+	static inline const uint32_t kAttackResetTimer = 65;
 
 	// 突撃復活タイマー
 	uint32_t attackResetTimer = 0;
@@ -250,7 +262,16 @@ private:
 	// 溜めているか
 	bool isTame = false;
 
+	// クリアしたか
+	bool isClear = false;
 
+	KamataEngine::Sprite* arrow_ = nullptr;
+	KamataEngine::Sprite* arrow2_ = nullptr;
+	KamataEngine::Sprite* gide_ = nullptr;
+	KamataEngine::Vector2 spritePos;
+	KamataEngine::Vector2 spriteSize;
+	float spriteRectX;
 
+	uint32_t textureHandleG_ = 0u;
 };
 

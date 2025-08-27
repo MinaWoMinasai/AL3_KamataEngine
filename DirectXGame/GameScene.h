@@ -81,6 +81,8 @@ private:
 	KamataEngine::Model* modelTitleText_ = nullptr;
 	KamataEngine::Model* modelHitEffect_ = nullptr;
 	KamataEngine::Model* modelBlock_ = nullptr;
+	KamataEngine::Model* modelNiddle = nullptr;
+	KamataEngine::Model* modelGoal = nullptr;
 
 	// カメラ
 	KamataEngine::Camera camera_;
@@ -88,13 +90,15 @@ private:
 	// インスタンス
 	Player* player_ = nullptr;
 	std::list<Enemy*> enemies_;
-	const int32_t kEnemyCount = 3;
+	const int32_t kEnemyCount = 0;
 	DeathParticles* deathParticles_ = nullptr;
 	Skydome* skydome_ = nullptr; 
 	std::list<HitEffect*> hitEffects_;
 
 	// ブロック用のワールドトランスフォーム
 	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
+	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformNeedles_;
+	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformGoals_;
 
 	// デバッグカメラ有効
 	bool isDebugCameraActive_ = false;
@@ -114,6 +118,6 @@ private:
 	Fade* fade_ = nullptr;
 
 	// フェード時間
-	static inline const float kDuration = 2.0f;
+	static inline const float kDuration = 1.0f;
 
 };

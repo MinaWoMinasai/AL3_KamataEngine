@@ -32,6 +32,7 @@ void TitleScene::Initialize() {
 	camera_.farZ = 1000.0f;
 	camera_.Initialize();
 
+	sHSelect = Audio::GetInstance()->LoadWave("select.wav");
 }
 
 void TitleScene::Update() {
@@ -64,6 +65,7 @@ void TitleScene::Update() {
 			if (Input::GetInstance()->PushKey(DIK_SPACE)) {
 			    fade_->Start(Fade::Status::FadeOut, kDuration);
 			    phase_ = Phase::kFadeOut;
+			    Audio::GetInstance()->PlayWave(sHSelect);
 			}
 
 			break;

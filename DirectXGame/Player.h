@@ -173,7 +173,7 @@ private:
 	KamataEngine::Vector3 velocity_ = {};
 
 	// 加速度
-	static inline const float kAcceleration = 0.02f;
+	static inline const float kAcceleration = 0.01f;
 	// 摩擦
 	static inline const float kAttenuation = 0.05f;
 	// どこを向いているか
@@ -185,7 +185,7 @@ private:
 	// 旋回時間<秒>
 	static inline const float kTimeTurn = 1.0f;
 	// 最大速度
-	static inline const float kLimitRunSpeed = 0.3f;
+	static inline const float kLimitRunSpeed = 0.20f;
 	// 接地状態フラグ
 	bool onGround_ = true;
 	// 重力加速度(下方向)
@@ -273,5 +273,11 @@ private:
 	float spriteRectX;
 
 	uint32_t textureHandleG_ = 0u;
+
+	// 音声
+	uint32_t sHKick = 0; // キック
+	uint32_t sHJump = 0; // ジャンプ
+	
+
 };
 

@@ -62,9 +62,11 @@ private:
 	Fade* fade_ = nullptr;
 
 	// フェード時間
-	static inline const float kDuration = 2.0f; 
+	static inline const float kDuration = 1.5f; 
 
 	// 現在のフェーズ
 	Phase phase_ = Phase::kFadeIn;
 
+	// 選択SE
+	uint32_t sHSelect = 0;
 };

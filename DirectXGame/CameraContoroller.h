@@ -40,6 +40,7 @@ public:
 
 	void Reset();
 
+	bool GetCameraMove() { return isMove_; }
 
 	private:
 	
@@ -57,6 +58,9 @@ public:
 	static inline const float kInterpolationRate = 0.1f;
 
 	// 追従対象の各方向へのカメラ移動範囲
-	static inline const Rect kMovebleArea = {0, 100, 0, 100};
+	static inline const Rect kMovebleArea = {0, 28, 0, 28};
+
+	// 移動フラグ
+	bool isMove_ = false;
 
 };

@@ -42,14 +42,16 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	// ImGuiManagerインスタンスの取得
 	ImGuiManager* imguiManager = ImGuiManager::GetInstance();
 
-	scene = Scene::kTitle;
+	//scene = Scene::kTitle;
 
-	// タイトルのインスタンスを生成
-	titleScene = new TitleScene();
+	//// タイトルのインスタンスを生成
+	//titleScene = new TitleScene();
 
-	// タイトルの初期化
-	titleScene->Initialize();
-
+	//// タイトルの初期化
+	//titleScene->Initialize();
+	scene = Scene::kGame;
+	gameScene = new GameScene();
+	gameScene->Initialize();
 #ifdef _DEBUG
 	scene = Scene::kGame;
 	gameScene = new GameScene();
@@ -72,7 +74,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		ChangeScene();
 		// ImGui受付終了
 		imguiManager->End();
-
 
 		// 描画開始
 		dxCommon->PreDraw();

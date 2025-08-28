@@ -29,6 +29,7 @@ void Player::Initialize(KamataEngine::Model* model, KamataEngine::Model* modelAt
 
 	worldTransform_.translation_ = position;
 	worldTransform_.rotation_.y = std::numbers::pi_v<float>;
+	worldTransform_.scale_ = {1.0f, 1.0f, 1.0f};
 	isDead = false;
 
 	// ファイル名を指定してテクスチャを読み込む
@@ -44,6 +45,38 @@ void Player::Initialize(KamataEngine::Model* model, KamataEngine::Model* modelAt
 	arrow2_->SetColor(Vector4(0, 0, 0, 1));
 	gide_->SetSize(Vector2(512, 512));
 	gide_->SetColor(Vector4(0, 0, 0, 1));
+
+	// 音声の読み込み
+	sHKick = Audio::GetInstance()->LoadWave("kick.wav");
+	sHJump = Audio::GetInstance()->LoadWave("jump.wav");
+
+	velocity_ = {};
+	// どこを向いているか
+	lrDirection_ = LRDirection::kRight;
+	// 旋回開始時の角度
+	turnFirstRotationY_ = 0.0f;
+	// 旋回タイマー
+	turnTimer_ = 0.0f;
+	// 接地状態フラグ
+	onGround_ = false;
+	// ダッシュタイマー
+	attackTimer = 0.0f;
+	// ふるまい
+	behavior_ = Behavior::kRoot;
+	// 次のふるまい
+	behavierRequest_ = Behavior::kUnkown;
+	// 攻撃フェーズ
+	attackPhase_ = AttackPhase::accumulate;
+	rush_ = kRushMin;
+	attackVelocity = kAttackVelocity;
+	// 突撃回数
+	attackCount = 2;
+	// 突撃復活タイマー
+	attackResetTimer = 0;
+	// 溜めているか
+	isTame = false;
+	// クリアしたか
+	isClear = false;
 }
 
 KamataEngine::Vector3 Player::CornerPositon(const KamataEngine::Vector3& center, Corner corner) {
@@ -107,6 +140,7 @@ void Player::Move() {
 			// ジャンプ処理
 			velocity_ += Vector3(0, kJumpAcceleration, 0);
 			velocity_.x *= 0.5f;
+			Audio::GetInstance()->PlayWave(sHJump);
 		}
 		// 空中
 	} else {
@@ -458,7 +492,7 @@ void Player::SwitchLanding(const CollisionMapInfo& info) {
 			velocity_.y = 0.0f;
 			// ジャンプ回数リセット
 			attackCount = kAttackMax;
-			rush_ = kRushMin;
+			attackTimer = kAttackResetTimer;
 		}
 	}
 }
@@ -592,12 +626,14 @@ void Player::BehaviorAttackUpdate() {
 		} else {
 			attackPhase_ = AttackPhase::rush;
 			attackTimer = 0; // カウンターをリセット
+			Audio::GetInstance()->PlayWave(sHKick);
 		}
 
 		// 溜めが最大になっても遷移
 		if (rush_ >= kRushMax) {
 			attackPhase_ = AttackPhase::rush;
 			attackTimer = 0; // カウンターをリセット
+			Audio::GetInstance()->PlayWave(sHKick);
 		}
 
 		// ゆっくり落とす

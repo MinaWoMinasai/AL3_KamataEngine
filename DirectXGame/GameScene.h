@@ -23,8 +23,16 @@ enum class Phase {
 	kFadeOut,
 };
 
+enum class DeathPhase {
+	kNone,
+	kFadeIn,
+	kFadeOut,
+};
+
 // ゲームの現在フェーズ
 Phase phase_;
+// デス中フェーズ
+DeathPhase deathPhase_;
 
 public:
 	/// <summary>
@@ -120,4 +128,7 @@ private:
 	// フェード時間
 	static inline const float kDuration = 1.0f;
 
+	// 選択SE
+	uint32_t sHSelect = 0;
+	uint32_t sHPlayerDeath = 0; // 死亡
 };

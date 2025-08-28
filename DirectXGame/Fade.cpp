@@ -11,6 +11,8 @@ void Fade::Initialize() {
 	sprite_ = Sprite::Create(textureHandle_, {0, 0});
 	sprite_->SetSize(Vector2(1280, 720));
 	sprite_->SetColor(Vector4(0, 0, 0, 1));
+
+	sHSelect = Audio::GetInstance()->LoadWave("select.wav");
 }
 
 void Fade::Update() {
@@ -79,6 +81,11 @@ bool Fade::IsFinished() const {
 		if (counter_ < duration_) {
 			return false;
 		}
+
+		break;
+
+	case Status::None:
+		return false;
 	}
 	
 	return true;

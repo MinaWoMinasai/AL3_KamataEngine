@@ -61,3 +61,4 @@ class MapChipField {
 	MapChipData mapChipData_;
 	
 };
+

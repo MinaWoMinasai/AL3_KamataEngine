@@ -106,8 +106,13 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Calculation.cpp" />
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="PlayerBullet.cpp" />
+    <ClCompile Include="WorldTransformClass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\shaders\TerrainPS.hlsl">
@@ -185,7 +190,12 @@
     <None Include="Resources\shaders\Sprite.hlsli" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Calculation.h" />
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="GameScene.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="PlayerBullet.h" />
+    <ClInclude Include="WorldTransformClass.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -9,32 +9,44 @@ using namespace KamataEngine;
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	// エンジンの初期化
-	Initialize(L"LE2A_13_ホリケ_ハヤト_AL3_kakuninn_01_01");
+	Initialize(L"LE2A_13_ホリケ_ハヤト_AL3_確認課題_03_06");
 
 	// DirectXCommonのインスタンスの取得
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
-	// ゲームシーンのインスタンスを生成
-	GameScene* gameScene = new GameScene();
+	// ImGuiManagerインスタンスの取得
+	ImGuiManager* imguiManager = ImGuiManager::GetInstance();
 
-	// ゲームシーンの初期化
+	GameScene* gameScene = new GameScene;
+
 	gameScene->Initialize();
 
-	// メインループ
 	while (true) {
 		// エンジンの更新
 		if (Update()) {
 			break;
 		}
 
+		// ImGui受付開始
+		imguiManager->Begin();
+
 		// ゲームシーンの更新
 		gameScene->Update();
 
+		// ImGui受付終了
+		imguiManager->End();
+
 		// 描画開始
 		dxCommon->PreDraw();
-
+		
 		// ゲームシーンの描画
 		gameScene->Draw();
+
+		// ImGuiの描画
+		imguiManager->Draw();
+
+		// 軸表示の描画
+		AxisIndicator::GetInstance()->Draw();
 
 		// 描画終了
 		dxCommon->PostDraw();
@@ -45,8 +57,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	// ゲームシーンの解放
 	delete gameScene;
-	// nullpttrの代入
-	gameScene = nullptr;
 
 	return 0;
 }

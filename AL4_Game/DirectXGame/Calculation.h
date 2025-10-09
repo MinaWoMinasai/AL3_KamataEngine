@@ -1,4 +1,8 @@
 #pragma once
-#include <KamataEngine.h>
+#define NOMINMAX
+#include "Struct.h"
 
-KamataEngine::Vector3 TransformNormal(const KamataEngine::Vector3& v, const KamataEngine::Matrix4x4& m);
+KamataEngine::Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, float minDepth, float maxDepth);
+
+// 直方体と直方体の当たり判定
+bool IsCollision(const AABB& aabb1, const AABB& aabb2);

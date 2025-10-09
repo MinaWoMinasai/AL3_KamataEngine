@@ -14,21 +14,24 @@ void Player::Rotate() {
 
 	// 押した方向で移動ベクトルを変更
 	if (input_->PushKey(DIK_A)) {
-		worldTransform_.rotation_.y -= kRotSpeed;
+		worldTransform_.rotation_.z -= kRotSpeed;
 	} else if (input_->PushKey(DIK_D)) {
-		worldTransform_.rotation_.y += kRotSpeed;
+		worldTransform_.rotation_.z += kRotSpeed;
 	}
 }
 
 void Player::Attack() {
-	if (input_->TriggerKey(DIK_SPACE)) {
+
+	//ImGui::Begin("Dir");
+	//ImGui::DragFloat3("rotate", &dir.x);
+	//ImGui::DragFloat3("mouse", &mouseVec.x);
+	//ImGui::End();
+	//
+	if (input_->TriggerKey(DIK_SPACE) || input_->IsTriggerMouse(0)) {
 
 		// 弾の速度
 		const float kBulletSpeed = 1.0f;
-		Vector3 velocity(0, 0, kBulletSpeed);
-
-		// 速度ベクトルを自機の向きに合わせて回転させる
-		velocity = TransformNormal(velocity, worldTransform_.matWorld_);
+		Vector3 velocity = dir * kBulletSpeed;
 
 		// 弾を生成し、初期化
 		PlayerBullet* newBullet = new PlayerBullet();
@@ -37,6 +40,41 @@ void Player::Attack() {
 		// 弾を登録する
 		bullets_.push_back(newBullet);
 	}
+}
+
+void Player::RotateToMouse(const KamataEngine::Camera& viewProjection) {
+	// --- 1. マウス座標取得 ---
+	POINT mousePosition;
+	GetCursorPos(&mousePosition);
+	HWND hwnd = WinApp::GetInstance()->GetHwnd();
+	ScreenToClient(hwnd, &mousePosition);
+
+	// --- 2. 逆変換用の行列を準備 ---
+	Matrix4x4 matViewport = MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
+	Matrix4x4 matVPV = viewProjection.matView * viewProjection.matProjection * matViewport;
+	Matrix4x4 matInverseVPV = Inverse(matVPV);
+
+	// --- 3. マウス座標をワールドに変換 ---
+	Vector3 posNear = Vector3((float)mousePosition.x, (float)mousePosition.y, 0);
+	Vector3 posFar = Vector3((float)mousePosition.x, (float)mousePosition.y, 1);
+
+	posNear = TransformCoord(posNear, matInverseVPV);
+	posFar = TransformCoord(posFar, matInverseVPV);
+
+	// --- 4. レイと Z=0 平面の交差 ---
+	Vector3 mouseDirection = posFar - posNear;
+	Vector3 rayDir = Normalize(mouseDirection);
+	float t = -posNear.z / rayDir.z;
+	Vector3 target = posNear + rayDir * t;
+
+	// --- 5. プレイヤーの位置と方向ベクトル ---
+	Vector3 playerPos = worldTransform_.translation_;
+	Vector3 targetPos = target - playerPos;
+	dir = Normalize(targetPos);
+
+	// --- 6. 回転角度を算出 ---
+	float angle = atan2(dir.y, dir.x);
+	worldTransform_.rotation_.z = angle;
 }
 
 void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle) {
@@ -48,32 +86,32 @@ void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle) {
 
 	// シングルトンインスタンス
 	input_ = Input::GetInstance();
+	
 }
 
-void Player::Update() {
+void Player::Update(const KamataEngine::Camera& viewProjection) {
 
 	ImGui::Begin("Player");
-	ImGui::DragFloat3("translation", &worldTransform_.translation_.x);
+	ImGui::DragFloat3("playerPosition", &worldTransform_.translation_.x, 0.1f);
 	ImGui::End();
+	
+	RotateToMouse(viewProjection);
 
 	// キャラクターの移動ベクトル
 	Vector3 move = {0, 0, 0};
 
-	// キャラクターの移動速さ
-	const float kCharacterSpeed = 0.2f;
-
 	// 押した方向で移動ベクトルを変更(左右)
-	if (input_->PushKey(DIK_LEFT)) {
-		move.x -= kCharacterSpeed;
-	} else if (input_->PushKey(DIK_RIGHT)) {
-		move.x += kCharacterSpeed;
+	if (input_->PushKey(DIK_A)) {
+		move.x -= characterSpeed;
+	} else if (input_->PushKey(DIK_D)) {
+		move.x += characterSpeed;
 	}
 
 	// 押した方向で移動ベクトルを変更(上下)
-	if (input_->PushKey(DIK_DOWN)) {
-		move.y -= kCharacterSpeed;
-	} else if (input_->PushKey(DIK_UP)) {
-		move.y += kCharacterSpeed;
+	if (input_->PushKey(DIK_W)) {
+		move.y += characterSpeed;
+	} else if (input_->PushKey(DIK_S)) {
+		move.y -= characterSpeed;
 	}
 
 	// 移動限界座標
@@ -124,4 +162,40 @@ void Player::Draw(KamataEngine::Camera& viewProjection) {
 
 	// 描画終了
 	Model::PostDraw();
+}
+
+Vector3 Player::GetWorldPosition() {
+
+	// ワールド座標を入れる変数
+	Vector3 worldPos;
+	// ワールド行列の平行移動成分を取得(ワールド座標)
+	worldPos.x = worldTransform_.translation_.x;
+	worldPos.y = worldTransform_.translation_.y;
+	worldPos.z = worldTransform_.translation_.z;
+
+	return worldPos;
+}
+
+AABB Player::GetAABB() {
+	Vector3 worldPos = GetWorldPosition();
+
+	AABB aabb;
+
+	aabb.min = {worldPos.x - kWidth / 2.0f, worldPos.y - kHeight / 2.0f, worldPos.z - kWidth / 2.0f};
+	aabb.max = {worldPos.x + kWidth / 2.0f, worldPos.y + kHeight / 2.0f, worldPos.z + kWidth / 2.0f};
+
+	return aabb;
+}
+
+Vector2 Player::GetMoveInput(){
+	Vector2 move = {0, 0};
+	if (input_->PushKey(DIK_A))
+		move.x -= characterSpeed;
+	if (input_->PushKey(DIK_D))
+		move.x += characterSpeed;
+	if (input_->PushKey(DIK_W))
+		move.y += characterSpeed;
+	if (input_->PushKey(DIK_S))
+		move.y -= characterSpeed;
+	return move;
 }

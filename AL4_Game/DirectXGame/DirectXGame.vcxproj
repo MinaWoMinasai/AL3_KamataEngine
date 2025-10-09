@@ -110,8 +110,10 @@
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MapChip.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerBullet.cpp" />
+    <ClCompile Include="Struct.cpp" />
     <ClCompile Include="WorldTransformClass.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -193,8 +195,10 @@
     <ClInclude Include="Calculation.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="GameScene.h" />
+    <ClInclude Include="MapChip.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerBullet.h" />
+    <ClInclude Include="Struct.h" />
     <ClInclude Include="WorldTransformClass.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

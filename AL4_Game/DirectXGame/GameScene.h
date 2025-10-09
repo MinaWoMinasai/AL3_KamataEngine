@@ -1,8 +1,11 @@
 #pragma once
+#define NOMINMAX
 #include "KamataEngine.h"
 #include <Windows.h>
 #include "Player.h"
 #include "Enemy.h"
+#include "MapChip.h"
+#include "Calculation.h"
 
 // ゲームシーン
 class GameScene {
@@ -33,8 +36,23 @@ public:
 	/// 描画
 	/// </summary>
 	void Draw();
+	
+	/// <summary>
+	/// マップチップの生成
+	/// </summary>
+	void GeneratteBlocks();
+
+	/// <summary>
+	/// プレイヤーとブロックの当たり判定
+	/// </summary>
+	void CheckCollisionPlayerAndBlocks();
 
 private:
+
+	struct Block {
+		std::unique_ptr<KamataEngine::WorldTransform> worldTransform;
+		AABB aabb;
+	};
 
 	// ビュープロジェクション
 	KamataEngine::Camera viewProjection_;
@@ -50,8 +68,9 @@ private:
 	uint32_t enemyTextureHandle_ = 0u;
 
 	// モデル
-	KamataEngine::Model *playerModel_;
+	KamataEngine::Model* playerModel_;
 	KamataEngine::Model* enemyModel_;
+	std::unique_ptr<KamataEngine::Model> modelBlock_ = nullptr;
 
 	// デバッグカメラ有効
 	bool isDebugCameraActive_ = false;
@@ -61,4 +80,9 @@ private:
 
 	// キーボード入力
 	KamataEngine::Input* input_ = nullptr;
+
+	// ブロック用のワールドトランスフォーム
+	std::vector<std::vector<Block>> blocks_;
+	// マップチップ
+	std::unique_ptr<MapChip> mapChip_ = nullptr;
 };

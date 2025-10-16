@@ -22,15 +22,10 @@ void Player::Rotate() {
 
 void Player::Attack() {
 
-	//ImGui::Begin("Dir");
-	//ImGui::DragFloat3("rotate", &dir.x);
-	//ImGui::DragFloat3("mouse", &mouseVec.x);
-	//ImGui::End();
-	//
 	if (input_->TriggerKey(DIK_SPACE) || input_->IsTriggerMouse(0)) {
 
 		// 弾の速度
-		const float kBulletSpeed = 1.0f;
+		const float kBulletSpeed = 0.5f;
 		Vector3 velocity = dir * kBulletSpeed;
 
 		// 弾を生成し、初期化
@@ -93,32 +88,26 @@ void Player::Update(const KamataEngine::Camera& viewProjection) {
 
 	ImGui::Begin("Player");
 	ImGui::DragFloat3("playerPosition", &worldTransform_.translation_.x, 0.1f);
+	ImGui::DragFloat("playerSpeed", &kCharacterSpeed, 0.1f);
 	ImGui::End();
 	
 	RotateToMouse(viewProjection);
 
-	// キャラクターの移動ベクトル
-	Vector3 move = {0, 0, 0};
+	move_ = {0, 0, 0};
 
-	// 押した方向で移動ベクトルを変更(左右)
-	if (input_->PushKey(DIK_A)) {
-		move.x -= characterSpeed;
-	} else if (input_->PushKey(DIK_D)) {
-		move.x += characterSpeed;
-	}
-
-	// 押した方向で移動ベクトルを変更(上下)
-	if (input_->PushKey(DIK_W)) {
-		move.y += characterSpeed;
-	} else if (input_->PushKey(DIK_S)) {
-		move.y -= characterSpeed;
-	}
+	// 押した方向で移動ベクトルを変更
+	if (input_->PushKey(DIK_A))
+		move_.x -= kCharacterSpeed;
+	if (input_->PushKey(DIK_D))
+		move_.x += kCharacterSpeed;
+	if (input_->PushKey(DIK_W))
+		move_.y += kCharacterSpeed;
+	if (input_->PushKey(DIK_S))
+		move_.y -= kCharacterSpeed;
 
 	// 移動限界座標
-	const float kMoveLimitX = 34.0f;
-	const float kMoveLimitY = 18.0f;
-
-	worldTransform_.translation_ += move;
+	//const float kMoveLimitY = 18.0f;
+	//const float kMoveLimitX = 34.0f;
 
 	Rotate();
 
@@ -139,10 +128,10 @@ void Player::Update(const KamataEngine::Camera& viewProjection) {
 	});
 
 	// 範囲を超えない処理
-	worldTransform_.translation_.x = std::clamp(worldTransform_.translation_.x, -kMoveLimitX, kMoveLimitX);
-	worldTransform_.translation_.y = std::clamp(worldTransform_.translation_.y, -kMoveLimitY, kMoveLimitY);
+	//worldTransform_.translation_.x = std::clamp(worldTransform_.translation_.x, -kMoveLimitX, kMoveLimitX);
+	//worldTransform_.translation_.y = std::clamp(worldTransform_.translation_.y, -kMoveLimitY, kMoveLimitY);
 
-	WorldTransformUpdate(worldTransform_);
+	//WorldTransformUpdate(worldTransform_);
 }
 
 void Player::Draw(KamataEngine::Camera& viewProjection) {
@@ -190,12 +179,12 @@ AABB Player::GetAABB() {
 Vector2 Player::GetMoveInput(){
 	Vector2 move = {0, 0};
 	if (input_->PushKey(DIK_A))
-		move.x -= characterSpeed;
+		move.x -= kCharacterSpeed;
 	if (input_->PushKey(DIK_D))
-		move.x += characterSpeed;
+		move.x += kCharacterSpeed;
 	if (input_->PushKey(DIK_W))
-		move.y += characterSpeed;
+		move.y += kCharacterSpeed;
 	if (input_->PushKey(DIK_S))
-		move.y -= characterSpeed;
+		move.y -= kCharacterSpeed;
 	return move;
 }

@@ -45,7 +45,9 @@ public:
 	/// <summary>
 	/// プレイヤーとブロックの当たり判定
 	/// </summary>
-	void CheckCollisionPlayerAndBlocks();
+	void CheckCollisionPlayerAndBlocks(char axis);
+
+	void CheckCollisionBulletsAndBlocks();
 
 private:
 

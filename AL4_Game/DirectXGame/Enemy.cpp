@@ -15,7 +15,7 @@ void Enemy::Initialize(KamataEngine::Model* model, uint32_t textureHandle, Kamat
 void Enemy::Update() {
 
 	// キャラクターの移動速さ
-	const Vector3 move = {0.0f, 0.0f, -0.1f};
+	const Vector3 move = {0.0f, 0.1f, 0.0f};
 
 	worldTransform_.translation_ += move;
 

@@ -52,6 +52,8 @@ public:
 	// ワールド座標を取得
 	KamataEngine::Vector3 GetWorldPosition();
 
+	KamataEngine::Vector3 GetMove() { return move_; }
+
 	// セッター
 	void SetWorldPosition(const KamataEngine::Vector3& pos) {
 		worldTransform_.translation_ = pos;
@@ -61,6 +63,9 @@ public:
 	// AABBを取得
 	AABB GetAABB();
 	KamataEngine::Vector2 GetMoveInput();
+
+	// 弾のゲッター
+	std::list<PlayerBullet*>& GetBullets() { return bullets_; }
 
 private:
 	// ワールド変換データ
@@ -83,6 +88,8 @@ private:
 	static inline const float kHeight = 1.6f;
 	
 	// キャラクターの移動速さ
-	float characterSpeed = 0.2f;
+	float kCharacterSpeed = 0.2f;
+	KamataEngine::Vector3 move_;
+	
 };
 

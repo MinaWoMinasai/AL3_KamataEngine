@@ -15,6 +15,10 @@ void PlayerBullet::Initialize(KamataEngine::Model* model, const KamataEngine::Ve
 	worldTransform_.translation_ = position;
 	velocity_ = velocity;
 
+	// 衝突属性を設定
+	SetCollisionAttribute(kCollisionAttributePlayer);
+	// 衝突対象を自分の属性以外に設定
+	SetCollisionMask(kCollisionAttributePlayer | kCollisionAttributePlayer);
 	//worldTransform_.scale_ = {0.5f, 0.5f, 0.5f};
 }
 
@@ -38,14 +42,19 @@ void PlayerBullet::Draw(const Camera& camera) {
 
 }
 
-Vector3 PlayerBullet::GetWorldPosition() {
+void PlayerBullet::OnCollision() {
+	// デスフラグを立てる
+	isDead_ = true;
+}
+
+Vector3 PlayerBullet::GetWorldPosition() const {
 	
 	// ワールド座標を入れる変数
 	Vector3 worldPos;
 	// ワールド行列の平行移動成分を取得(ワールド座標)
-	worldPos.x = worldTransform_.translation_.x;
-	worldPos.y = worldTransform_.translation_.y;
-	worldPos.z = worldTransform_.translation_.z;
+	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1];
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
 
 	return worldPos;
 }

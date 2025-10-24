@@ -1,47 +1,46 @@
 #pragma once
+#include "Calculation.h"
+#include "Collider.h"
+#include "CollisionConfig.h"
 #include "KamataEngine.h"
 #include "WorldTransformClass.h"
 #include <Windows.h>
 #include <algorithm>
-#include "Calculation.h"
-#include "Collider.h"
-#include "CollisionConfig.h"
 
-class PlayerBullet : public Collider {
+class Player;
+
+class EnemyBullet : public Collider {
 
 public:
-
-	void Initialize(KamataEngine::Model* model, const KamataEngine::Vector3& position, const KamataEngine::Vector3& velocity);
-
-	void Update();
-
-	void Draw(const KamataEngine::Camera& camera);
-
-	bool IsDead() const { return isDead_; }
-	
 	/// <summary>
 	/// 衝突判定
 	/// </summary>
 	void OnCollision() override;
 
-	// ワールド座標を取得
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	void Initialize(KamataEngine::Model* model, const KamataEngine::Vector3& position, const KamataEngine::Vector3& velocity);
+
+	/// <summary>
+	/// 更新
+	/// </summary>
+	void Update();
+
+	/// <summary>
+	/// 描画
+	/// </summary>
+	void Draw(const KamataEngine::Camera& camera);
+
+	bool IsDead() const { return isDead_; }
+
 	KamataEngine::Vector3 GetWorldPosition() const override;
+	void SetPlayer(Player* player) { player_ = player; }
 
-	KamataEngine::Vector3 GetMove() { return velocity_; }
-
-	// セッター
-	void SetWorldPosition(const KamataEngine::Vector3& pos) {
-		worldTransform_.translation_ = pos;
-		WorldTransformUpdate(worldTransform_);
-	}
-
-	AABB GetAABB();
-
-	void SetVelocity(const KamataEngine::Vector3& v) { velocity_ = v; }
-	AABB ComputeAABBAt(const KamataEngine::Vector3& pos);
+	// 半径
+	static inline const float kRadius = 1.0f;
 
 private:
-
 	KamataEngine::Model* model_;
 	// テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
@@ -52,14 +51,16 @@ private:
 	// 速度
 	KamataEngine::Vector3 velocity_;
 
+	// 速さ
+	static inline const float kBulletSpeed = 1.0f;
+
 	// 寿命
-	static const int32_t kLifeTime = 200;
+	static const int32_t kLifeTime = 600;
 	// デスタイマー
 	int32_t deathTimer_ = kLifeTime;
 	// デスフラグ
 	bool isDead_ = false;
 
-	// キャラクターの当たり判定サイズ
-	static inline const float kWidth = 1.6f;
-	static inline const float kHeight = 1.6f;
+	// 自キャラ
+	Player* player_ = nullptr;
 };

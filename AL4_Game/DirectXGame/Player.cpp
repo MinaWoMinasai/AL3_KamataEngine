@@ -30,7 +30,7 @@ void Player::Attack() {
 
 		// 弾を生成し、初期化
 		PlayerBullet* newBullet = new PlayerBullet();
-		newBullet->Initialize(model_, worldTransform_.translation_, velocity);
+		newBullet->Initialize(modelBullet_, worldTransform_.translation_, velocity);
 
 		// 弾を登録する
 		bullets_.push_back(newBullet);
@@ -72,16 +72,21 @@ void Player::RotateToMouse(const KamataEngine::Camera& viewProjection) {
 	worldTransform_.rotation_.z = angle;
 }
 
-void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle) {
+void Player::Initialize(KamataEngine::Model* model, KamataEngine::Model* modelBullet) {
 
 	assert(model);
 	model_ = model;
-	textureHandle_ = textureHandle;
+	assert(modelBullet);
+	modelBullet_ = modelBullet;
 	worldTransform_.Initialize();
 
 	// シングルトンインスタンス
 	input_ = Input::GetInstance();
-	
+
+	// 衝突属性を設定
+	SetCollisionAttribute(kCollisionAttributePlayer);
+	// 衝突対象を自分の属性以外に設定
+	SetCollisionMask(kCollisionAttributePlayer | kCollisionAttributePlayer);
 }
 
 void Player::Update(const KamataEngine::Camera& viewProjection) {
@@ -147,20 +152,20 @@ void Player::Draw(KamataEngine::Camera& viewProjection) {
 		bullet->Draw(viewProjection);
 	}
 
-	model_->Draw(worldTransform_, viewProjection, textureHandle_);
+	model_->Draw(worldTransform_, viewProjection);
 
 	// 描画終了
 	Model::PostDraw();
 }
 
-Vector3 Player::GetWorldPosition() {
+KamataEngine::Vector3 Player::GetWorldPosition() const {
 
-	// ワールド座標を入れる変数
+	// ワールド座標を入れる
 	Vector3 worldPos;
 	// ワールド行列の平行移動成分を取得(ワールド座標)
-	worldPos.x = worldTransform_.translation_.x;
-	worldPos.y = worldTransform_.translation_.y;
-	worldPos.z = worldTransform_.translation_.z;
+	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1];
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
 
 	return worldPos;
 }
@@ -188,3 +193,5 @@ Vector2 Player::GetMoveInput(){
 		move.y -= kCharacterSpeed;
 	return move;
 }
+
+void Player::OnCollision() {}

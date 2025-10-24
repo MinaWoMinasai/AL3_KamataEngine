@@ -6,11 +6,13 @@
 #include "PlayerBullet.h"
 #include <list>
 #include "Calculation.h"
+#include "Collider.h"
+#include "CollisionConfig.h"
 
 /// <summary>
 /// 自キャラ
 /// </summary>
-class Player {
+class Player : public Collider {
 
 public:
 
@@ -37,7 +39,7 @@ public:
 	/// <param name="model">モデル</param>
 	/// <param name="camera">カメラ</param>
 	/// <param name="position">初期座標</param>
-	void Initialize(KamataEngine::Model* model, uint32_t textureHandle);
+	void Initialize(KamataEngine::Model* model, KamataEngine::Model* modelBullet);
 
 	/// <summary>
 	/// 更新
@@ -49,8 +51,17 @@ public:
 	/// </summary>
 	void Draw(KamataEngine::Camera& viewProjection);
 
+	/// <summary>
+	/// 衝突判定
+	/// </summary>
+	void OnCollision() override;
+
 	// ワールド座標を取得
-	KamataEngine::Vector3 GetWorldPosition();
+
+	// 半径
+	static inline const float kRadius = 1.0f;
+
+	KamataEngine::Vector3 GetWorldPosition() const override;
 
 	KamataEngine::Vector3 GetMove() { return move_; }
 
@@ -73,6 +84,7 @@ private:
 	KamataEngine::WorldTransform worldTransformMouse_;
 	// モデル
 	KamataEngine::Model* model_ = nullptr;
+	KamataEngine::Model* modelBullet_ = nullptr;
 	// テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
 

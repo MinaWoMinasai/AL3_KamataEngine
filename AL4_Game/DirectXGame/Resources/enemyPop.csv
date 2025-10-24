@@ -1,0 +1,17 @@
+// コマンド,x,y,z,ステート
+WAIT,60,,
+POP,6,8,0,Wave
+WAIT,60,,
+POP,-12,-8,0,Wave
+WAIT,60,,
+POP,3,4,0,Wave
+WAIT,60,,
+POP,3,-4,0,Wave
+WAIT,60,,
+POP,-3,4,0,Wave
+WAIT,60,,
+POP,3,4,0,Wave
+WAIT,60,,
+POP,3,-4,0,Wave
+WAIT,60,,
+POP,-3,-4,0,Wave

@@ -130,4 +130,6 @@ private:
 	// 衝突マネージャ
 	CollisionManager* collisionManager_ = nullptr;
 	KamataEngine::Vector3 normal_;
+
+	std::vector<AABB> mergedBlocks_;
 };

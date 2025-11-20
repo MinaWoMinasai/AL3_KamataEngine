@@ -12,7 +12,7 @@ GameScene::~GameScene() {
 	// 自キャラの解放
 	delete player_;
 	delete debugCamera_;
-	//delete enemy_;
+	// delete enemy_;
 	delete playerModel_;
 	delete enemyModel_;
 	for (Enemy* enemy : enemies_) {
@@ -58,10 +58,10 @@ void GameScene::Initialize() {
 	collisionManager_ = new CollisionManager();
 
 	// 敵キャラの生成
-	//enemy_ = new Enemy();
+	// enemy_ = new Enemy();
 	//// 敵キャラの初期化
-	//Vector3 enemyPosition = {2.0f, 0.0f, 0.0f};
-	//enemy_->Initialize(enemyModel_, enemyTextureHandle_, enemyPosition);
+	// Vector3 enemyPosition = {2.0f, 0.0f, 0.0f};
+	// enemy_->Initialize(enemyModel_, enemyTextureHandle_, enemyPosition);
 
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
@@ -75,14 +75,14 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update() {
-	
+
 	// プレイヤーの更新
 	player_->Update(viewProjection_);
 
 	// 弾とブロックの当たり判定
 	CheckCollisionBulletsAndBlocks();
 
-    // X軸移動
+	// X軸移動
 	Vector3 playerPos = player_->GetWorldPosition();
 	playerPos.x += player_->GetMove().x;
 	player_->SetWorldPosition(playerPos);
@@ -95,7 +95,7 @@ void GameScene::Update() {
 	CheckCollisionPlayerAndBlocks('y');
 
 	// 敵の更新
-	//enemy_->Update();
+	// enemy_->Update();
 
 	if (isDebugCameraActive_) {
 		debugCamera_->Update();
@@ -117,7 +117,7 @@ void GameScene::Update() {
 		for (auto& block : line) {
 			if (!block.worldTransform)
 				continue;
-				WorldTransformUpdate(*block.worldTransform);
+			WorldTransformUpdate(*block.worldTransform);
 		}
 	}
 
@@ -191,7 +191,7 @@ void GameScene::Draw() {
 	}
 
 	// 敵の描画
-	//enemy_->Draw(viewProjection_);
+	// enemy_->Draw(viewProjection_);
 
 	// プレイヤーの描画
 	player_->Draw(viewProjection_);
@@ -227,8 +227,7 @@ void GameScene::GeneratteBlocks() {
 
 				// 座標設定
 				block.worldTransform->translation_ = mapChip_->GetMapChipPositionByIndex(j, i);
-				//block.worldTransform->scale_ = {0.5f, 0.5f, 0.5f};
-
+				// block.worldTransform->scale_ = {0.5f, 0.5f, 0.5f};
 
 				// 中心座標
 				const auto& pos = block.worldTransform->translation_;
@@ -242,6 +241,68 @@ void GameScene::GeneratteBlocks() {
 			}
 		}
 	}
+	// --- ここから追加: ブロック統合処理 ---
+	// --- 安全統合処理 ---
+	auto FixAABB = [](AABB& aabb) {
+		if (aabb.min.x > aabb.max.x)
+			std::swap(aabb.min.x, aabb.max.x);
+		if (aabb.min.y > aabb.max.y)
+			std::swap(aabb.min.y, aabb.max.y);
+		if (aabb.min.z > aabb.max.z)
+			std::swap(aabb.min.z, aabb.max.z);
+	};
+
+	mergedBlocks_.clear();
+
+	// 横方向の連続ブロックを統合
+	for (uint32_t i = 0; i < numBlockVirtical; ++i) {
+		bool merging = false;
+		AABB mergedAABB{};
+
+		for (uint32_t j = 0; j < numBlockHorizontal; ++j) {
+			const Block& block = blocks_[i][j];
+			if (block.worldTransform) {
+				if (!merging) {
+					mergedAABB = block.aabb;
+					merging = true;
+				} else {
+					mergedAABB.max.x = block.aabb.max.x;
+				}
+			} else if (merging) {
+				mergedBlocks_.push_back(mergedAABB);
+				merging = false;
+			}
+		}
+		if (merging) {
+			//FixAABB(mergedAABB);
+			mergedBlocks_.push_back(mergedAABB);
+		}
+	}
+
+	// --- 縦方向の連続ブロックも統合 ---
+	//for (uint32_t j = 0; j < numBlockHorizontal; ++j) {
+	//	bool merging = false;
+	//	AABB mergedAABB{};
+	//
+	//	for (uint32_t i = 0; i < numBlockVirtical; ++i) {
+	//		const Block& block = blocks_[i][j];
+	//		if (block.worldTransform) {
+	//			if (!merging) {
+	//				mergedAABB = block.aabb;
+	//				merging = true;
+	//			} else {
+	//				mergedAABB.max.y = block.aabb.max.y;
+	//			}
+	//		} else if (merging) {
+	//			mergedBlocks_.push_back(mergedAABB);
+	//			merging = false;
+	//		}
+	//	}
+	//	if (merging) {
+	//		//FixAABB(mergedAABB);
+	//		mergedBlocks_.push_back(mergedAABB);
+	//	}
+	//}
 }
 
 void GameScene::CheckCollisionPlayerAndBlocks(char axis) {
@@ -297,53 +358,57 @@ void GameScene::CheckCollisionBulletsAndBlocks() {
 		Sphere bulletSphere{bulletPos, radius};
 		bool isCollided = false;
 		float nearestDist = std::numeric_limits<float>::max();
-		Block* nearestBlock = nullptr;
+		//Block* nearestBlock = nullptr;
 		Vector3 nearestClosestPoint{};
 		Vector3 nearestNormal{};
+		AABB nearestAABB{};
 
 		Vector3 velocity = bullet->GetMove();
 		Vector3 velocityDir = Normalize(velocity);
 
-					// 修正後
-					ImGui::DragFloat3("dir", reinterpret_cast<float*>(&velocityDir), 0.1f);
-					ImGui::DragFloat3("normal", reinterpret_cast<float*>(&normal_), 0.1f);
-					ImGui::End();
+		// 修正後
+		ImGui::DragFloat3("dir", reinterpret_cast<float*>(&velocityDir), 0.1f);
+		ImGui::DragFloat3("normal", reinterpret_cast<float*>(&normal_), 0.1f);
+		ImGui::End();
 
-		for (auto& line : blocks_) {
-			for (auto& block : line) {
-				if (!block.worldTransform)
-					continue;
+		for (const auto& blockAABB : mergedBlocks_) {
 
-				const AABB& blockAABB = block.aabb;
+			if (IsCollision(blockAABB, bulletSphere)) {
 
-				if (IsCollision(blockAABB, bulletSphere)) {
+				Vector3 closestPoint{
+				    std::clamp(bulletSphere.center.x, blockAABB.min.x, blockAABB.max.x), std::clamp(bulletSphere.center.y, blockAABB.min.y, blockAABB.max.y),
+				    std::clamp(bulletSphere.center.z, blockAABB.min.z, blockAABB.max.z)};
+
+				// 球の中心→接触点へのベクトル（法線方向）
+				Vector3 normal = bulletSphere.center - closestPoint;
+				normal.z = 0.0f; // 2DなのでZ成分は常に0
+				normal = Normalize(normal);
+
+				// --- ★2D用角度補正（X/Y軸のみ） ---
+				Vector2 absNormal2D = {std::fabs(normal.x), std::fabs(normal.y)};
+				if (absNormal2D.x > absNormal2D.y) {
+					// X軸方向が支配的
+					normal = {(normal.x > 0 ? 1.0f : -1.0f), 0.0f, 0.0f};
+				} else {
+					// Y軸方向が支配的
+					normal = {0.0f, (normal.y > 0 ? 1.0f : -1.0f), 0.0f};
+				}
+
+				// 衝突距離を算出
+				float dist = Length(bulletSphere.center - closestPoint);
+
+				if (dist < nearestDist) {
+					nearestDist = dist;
+					nearestAABB = blockAABB;
+					nearestClosestPoint = closestPoint;
+					nearestNormal = normal;
 					isCollided = true;
-
-					// --- 衝突処理 ---
-					Vector3 closestPoint{
-					    std::clamp(bulletSphere.center.x, blockAABB.min.x, blockAABB.max.x), std::clamp(bulletSphere.center.y, blockAABB.min.y, blockAABB.max.y),
-					    std::clamp(bulletSphere.center.z, blockAABB.min.z, blockAABB.max.z)};
-
-					// 球の中心→接触点へのベクトル（法線方向）
-					Vector3 normal = bulletSphere.center - closestPoint;
-					normal = Normalize(normal);
-					normal_ = normal;
-					float dist = Length(bulletSphere.center - closestPoint);
-
-					if (dist < nearestDist) {
-						nearestDist = dist;
-						nearestBlock = &block;
-						nearestClosestPoint = closestPoint;
-						nearestNormal = normal;
-						isCollided = true;
-					}
 				}
 			}
-			if (isCollided)
-				break;
 		}
 
-		if (isCollided && nearestBlock) {
+		// --- 最も近いブロックに対してのみ反射処理 ---
+		if (isCollided) {
 			bulletPos = nearestClosestPoint + nearestNormal * (radius + 0.01f);
 
 			Vector3 vel = bullet->GetMove();
@@ -353,7 +418,6 @@ void GameScene::CheckCollisionBulletsAndBlocks() {
 			bullet->SetVelocity(vel);
 			bullet->SetWorldPosition(bulletPos);
 		}
-
 		// 弾削除処理
 		if (bullet->IsDead()) {
 			bulletIter = player_->GetBullets().erase(bulletIter);

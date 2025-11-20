@@ -103,5 +103,8 @@ private:
 	float kCharacterSpeed = 0.2f;
 	KamataEngine::Vector3 move_;
 	
+	const int kBulletTime = 5;
+	int bulletCoolTime = 0;
+
 };
 
